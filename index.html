@@ -11,24 +11,49 @@
         <link href='https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css' rel='stylesheet' type='text/css' />
     </head>
     <body>
-    
-        
-
         <div style="margin-top: 10%;"><!-- Spacer --></div>
         <div class="row">
-            
             <div class="two columns">
-                settings
+                <h4>settings</h4>
+                
                 
             </div>
             <div class="ten columns">
-                <div id="world"><!-- --></div>
-                world
+                <h4>world</h4>
+                <div>
+                    <canvas id="world"><!-- World --></canvas>
+                </div>
             </div>
         </div>
         
         <script>
-            //Script
+            var canvas,
+                context,
+                imageData,
+                ants = [];
+                
+                
+                //ant = {"x" : 8, "y" : 8, "life": 255}; //Ant sample structure
+
+            function init() {
+                canvas = document.getElementById('world');
+                context = canvas.getContext('2d');
+                imageData = context.createImageData(1, 1);
+                
+                drawPixel(5, 5, 0, 0, 0, 255);
+                drawPixel(5, 6, 0, 0, 0, 255);
+                drawPixel(5, 7, 255, 0, 0, 255);
+            }
+            
+            function drawPixel(x, y, r, g, b, a) {
+                imageData.data[0] = r;
+                imageData.data[1] = g;
+                imageData.data[2] = b;
+                imageData.data[3] = a;
+                context.putImageData(imageData, x, y);
+            }
+
+            init();
         </script>
     </body>
 </html>
