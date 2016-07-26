@@ -30,12 +30,13 @@
             var canvas,
                 context,
                 imageData,
-                ants = [];
+                maxAnts = 500,
+                ants = [],
+                defaultAnt = {"x" : 10, "y" : 10, "life": 255};
                 
-                
-                //ant = {"x" : 8, "y" : 8, "life": 255}; //Ant sample structure
-
             function init() {
+                int i;
+            
                 canvas = document.getElementById('world');
                 context = canvas.getContext('2d');
                 imageData = context.createImageData(1, 1);
@@ -43,6 +44,10 @@
                 drawPixel(5, 5, 0, 0, 0, 255);
                 drawPixel(5, 6, 0, 0, 0, 255);
                 drawPixel(5, 7, 255, 0, 0, 255);
+                
+                for (i = 0; i < maxAnts; i++) {
+                    ants.push();
+                }
             }
             
             function drawPixel(x, y, r, g, b, a) {
