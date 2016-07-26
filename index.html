@@ -26,6 +26,8 @@
             </div>
         </div>
         
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+        
         <script>
             var canvas,
                 context,
@@ -34,8 +36,11 @@
                 ants = [],
                 defaultAnt = {"x" : 10, "y" : 10, "life": 255};
                 
+                //var test = _.extend(defaultAnt, {"a":1});
+                //console.log(test);
+                
             function init() {
-                int i;
+                var i;
             
                 canvas = document.getElementById('world');
                 context = canvas.getContext('2d');
