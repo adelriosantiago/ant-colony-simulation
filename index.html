@@ -37,34 +37,42 @@
                     "x" : 10,
                     "y" : 10,
                     "life" : 255,
-                    "selfPaint" : function(remove) {
-                        if (remove) {
-                            imageData.data[0] = 255;
-                            imageData.data[1] = 255;
-                            imageData.data[2] = 255;
-                        } else {
-                            imageData.data[0] = 0;
-                            imageData.data[1] = 0;
-                            imageData.data[2] = 0;
-                        }
-                        imageData.data[3] = 255;
-                        context.putImageData(imageData, this.x, this.y);
-                    },
                     "move" : function() {
+                        function selfPaint(x, y, inverse) {
+                            if (inverse) {
+                                imageData.data[0] = 255;
+                                imageData.data[1] = 255;
+                                imageData.data[2] = 255;
+                            } else {
+                                imageData.data[0] = 0;
+                                imageData.data[1] = 0;
+                                imageData.data[2] = 0;
+                            }
+                            imageData.data[3] = 255;
+                            context.putImageData(imageData, x, y);
+                            
+                            /*if (!remove) {
+                                //setTimeout(this.move(), 5000);
+                                setTimeout(this.move(), 1000);
+                            }*/
+                            
+                            return;
+                        }
                         function randMove() {
                             return (Math.floor(Math.random() * 3) - 1);
                         }
-                        this.selfPaint(true);
+                        selfPaint(this.x, this.y, true);
                         this.x += randMove();
                         this.y += randMove();
-                        this.selfPaint();
+                        selfPaint(this.x, this.y, false);
+                        console.log("timeout");
+                        
+                        return;
                     }
                 };
                 
                 //var test = _.extend(defaultAnt, {"a":1});
                 //console.log(test);
-                
-            
                 
             function init() {
                 var i;
@@ -79,11 +87,11 @@
                 
                 for (i = 0; i < startingAnts; i++) {
                     ants.push(_.extend(defaultAnt, {"x" : (Math.floor(Math.random() * 100)), "y" : (Math.floor(Math.random() * 100))}));
-                    ants[i].selfPaint();
+                    //ants[i].selfPaint();
                 }
                 console.log(ants);
                 
-                ants[0].selfPaint();
+                //ants[0].selfPaint();
             }
             
             function drawPixel(x, y, r, g, b, a) {
