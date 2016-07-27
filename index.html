@@ -15,8 +15,6 @@
         <div class="row">
             <div class="two columns">
                 <h4>settings</h4>
-                
-                
             </div>
             <div class="ten columns">
                 <h4>world</h4>
@@ -32,12 +30,29 @@
             var canvas,
                 context,
                 imageData,
+                startingAnts = 100,
                 maxAnts = 500,
                 ants = [],
-                defaultAnt = {"x" : 10, "y" : 10, "life": 255};
+                defaultAnt = {
+                    "x" : 10,
+                    "y" : 10,
+                    "life" : 255,
+                    "selfPaint" : function() {
+                        imageData.data[0] = 0;
+                        imageData.data[1] = 0;
+                        imageData.data[2] = 0;
+                        imageData.data[3] = 255;
+                        context.putImageData(imageData, this.x, this.y);
+                    },
+                    "move" : function() {
+                        
+                    }
+                };
                 
                 //var test = _.extend(defaultAnt, {"a":1});
                 //console.log(test);
+                
+            
                 
             function init() {
                 var i;
@@ -50,9 +65,13 @@
                 drawPixel(5, 6, 0, 0, 0, 255);
                 drawPixel(5, 7, 255, 0, 0, 255);
                 
-                for (i = 0; i < maxAnts; i++) {
-                    ants.push();
+                for (i = 0; i < startingAnts; i++) {
+                    ants.push(_.extend(defaultAnt, {"x" : (Math.floor(Math.random() * 100)), "y" : (Math.floor(Math.random() * 100))}));
+                    ants[i].selfPaint();
                 }
+                console.log(ants);
+                
+                ants[0].selfPaint();
             }
             
             function drawPixel(x, y, r, g, b, a) {
