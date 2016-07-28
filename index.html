@@ -30,7 +30,7 @@
             var canvas,
                 context,
                 imageData,
-                startingAnts = 100,
+                startingAnts = 500,
                 maxAnts = 500,
                 ants = [],
                 defaultAnt = {
@@ -65,7 +65,11 @@
                         this.x += randMove();
                         this.y += randMove();
                         selfPaint(this.x, this.y, false);
-                        console.log("timeout");
+                        
+                        setTimeout(function() {
+                            this.move();
+                            //console.log("ok");
+                        }.bind(this), 5);
                         
                         return;
                     }
@@ -86,12 +90,52 @@
                 drawPixel(5, 7, 255, 0, 0, 255);
                 
                 for (i = 0; i < startingAnts; i++) {
-                    ants.push(_.extend(defaultAnt, {"x" : (Math.floor(Math.random() * 100)), "y" : (Math.floor(Math.random() * 100))}));
-                    //ants[i].selfPaint();
+                    ants.push(_.extend(_.clone(defaultAnt), {"x" : (Math.floor(Math.random() * 200)), "y" : (Math.floor(Math.random() * 200))}));
+                    //ants[i].move();
                 }
                 console.log(ants);
                 
                 //ants[0].selfPaint();
+            }
+            
+            function moveAnt(ant) {
+                function selfPaint(x, y, inverse) {
+                    if (inverse) {
+                        imageData.data[0] = 255;
+                        imageData.data[1] = 255;
+                        imageData.data[2] = 255;
+                    } else {
+                        imageData.data[0] = 0;
+                        imageData.data[1] = 0;
+                        imageData.data[2] = 0;
+                    }
+                    imageData.data[3] = 255;
+                    context.putImageData(imageData, x, y);
+                    
+                    /*if (!remove) {
+                        //setTimeout(this.move(), 5000);
+                        setTimeout(this.move(), 1000);
+                    }*/
+                    
+                    return;
+                }
+                function randMove() {
+                    return (Math.floor(Math.random() * 3) - 1);
+                }
+                
+                selfPaint(ant.x, ant.y, true);
+                ant.x += randMove();
+                ant.y += randMove();
+                selfPaint(ant.x, ant.y, false);
+            }
+            
+            function step() {
+                _.each(ants, moveAnt);
+                
+                setTimeout(function() {
+                    step();
+                    //console.log("ok");
+                }, 5);
             }
             
             function drawPixel(x, y, r, g, b, a) {
