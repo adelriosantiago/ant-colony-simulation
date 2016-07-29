@@ -37,6 +37,9 @@
                     "x" : 10,
                     "y" : 10,
                     "life" : 255,
+                    "waitFor" : function() {
+                        return (Math.floor(Math.random() * 1000));
+                    },
                     "move" : function() {
                         function selfPaint(x, y, inverse) {
                             if (inverse) {
@@ -64,7 +67,7 @@
                         setTimeout(function() {
                             this.move();
                             //console.log("ok");
-                        }.bind(this), 5);
+                        }.bind(this), this.waitFor());
                         
                         return;
                     }
