@@ -51,11 +51,6 @@
                             imageData.data[3] = 255;
                             context.putImageData(imageData, x, y);
                             
-                            /*if (!remove) {
-                                //setTimeout(this.move(), 5000);
-                                setTimeout(this.move(), 1000);
-                            }*/
-                            
                             return;
                         }
                         function randMove() {
@@ -91,7 +86,7 @@
                 
                 for (i = 0; i < startingAnts; i++) {
                     ants.push(_.extend(_.clone(defaultAnt), {"x" : (Math.floor(Math.random() * 200)), "y" : (Math.floor(Math.random() * 200))}));
-                    //ants[i].move();
+                    ants[i].move();
                 }
                 console.log(ants);
                 
@@ -111,11 +106,6 @@
                     }
                     imageData.data[3] = 255;
                     context.putImageData(imageData, x, y);
-                    
-                    /*if (!remove) {
-                        //setTimeout(this.move(), 5000);
-                        setTimeout(this.move(), 1000);
-                    }*/
                     
                     return;
                 }
