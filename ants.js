@@ -10,8 +10,17 @@
             "x" : 10,
             "y" : 10,
             "life" : 255,
-            "status" : 0, //0=searching for food, 1=food found and returning, 2=over arousal over danger
-            
+            "overArousal" : false, //True for an over aroused ant
+            "foodFound" : false, //True for an ant that carries food
+            "exploring" : true, //True for an ant that is actively looking for food
+            "returning" : false, //True for an ant that is returning home
+            "step" : function () {
+                moveAnt(this);
+                
+                setTimeout(function() {
+                    this.step();
+                }.bind(this), 250 - (200 * this.overArousal));
+            }
         };
     
     function init() {
@@ -26,9 +35,11 @@
                 "x" : (Math.floor(Math.random() * 200)),
                 "y" : (Math.floor(Math.random() * 200))
             }));
+            ants[i].step();
         }
         console.log(ants);
-        step(); //Start the engine
+        
+        //step(); //Start the engine
     }
 
     function moveAnt(ant) {
@@ -49,15 +60,6 @@
         ant.x += randMove();
         ant.y += randMove();
         selfPaint(ant.x, ant.y, false);
-    }
-
-    function step() {
-        _.each(ants, moveAnt);
-        
-        setTimeout(function() {
-            step();
-            //console.log("ok");
-        }, 10);
     }
     
     init();
