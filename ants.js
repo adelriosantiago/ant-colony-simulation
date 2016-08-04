@@ -32,8 +32,8 @@
         
         for (i = 0; i < startingAnts; i++) {
             ants.push(_.extend(_.clone(defaultAnt), {
-                "x" : (Math.floor(Math.random() * 200)),
-                "y" : (Math.floor(Math.random() * 200))
+                "x" : (Math.floor(Math.random() * 600)),
+                "y" : (Math.floor(Math.random() * 600))
             }));
             ants[i].step();
         }
