@@ -3,23 +3,22 @@
     var canvas,
         context,
         imageData,
-        startingAnts = 1000,
-        maxAnts = 1000,
+        startingAnts = 5000,
+        maxAnts = 500,
         ants = [],
         defaultAnt = {
             "x" : 10,
             "y" : 10,
             "life" : 255,
-            "overArousal" : false, //True for an over aroused ant
+            "overArousal" : true, //True for an over aroused ant
             "foodFound" : false, //True for an ant that carries food
             "exploring" : true, //True for an ant that is actively looking for food
             "returning" : false, //True for an ant that is returning home
             "step" : function () {
                 moveAnt(this);
-                
                 setTimeout(function() {
                     this.step();
-                }.bind(this), 250 - (200 * this.overArousal));
+                }.bind(this), 200 - (200 * this.overArousal));
             }
         };
     
@@ -27,6 +26,8 @@
         var i;
 
         canvas = document.getElementById('world');
+        canvas.width = 600;
+        canvas.height = 600;
         context = canvas.getContext('2d');
         imageData = context.createImageData(1, 1);
         
@@ -37,9 +38,6 @@
             }));
             ants[i].step();
         }
-        console.log(ants);
-        
-        //step(); //Start the engine
     }
 
     function moveAnt(ant) {
@@ -48,8 +46,8 @@
             imageData.data[1] = 255 * inverse;
             imageData.data[2] = 255 * inverse;
             imageData.data[3] = 255;
-            context.putImageData(imageData, x, y);
             
+            context.putImageData(imageData, x, y);
             return;
         }
         function randMove() {
