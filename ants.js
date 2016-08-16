@@ -26,8 +26,6 @@
         };
     
     function init() {
-        var i;
-
         canvas = document.getElementById('world');
         canvas.width = width;
         canvas.height = height;
@@ -36,8 +34,8 @@
         
         _.times(startingAnts, function(i) {
             ants.push(_.extend(_.clone(defaultAnt), {
-                "x" : (Math.floor(Math.random() * width)),
-                "y" : (Math.floor(Math.random() * height))
+                "x" : _.random(0, width),
+                "y" : _.random(0, height)
             }));
             ants[i].step();
         });
