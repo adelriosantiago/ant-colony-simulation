@@ -1,13 +1,14 @@
 //TODO: Enable enclosure when deploying
 /*(function () {*/
-    var canvas,
+    var startingAnts = 1000,
+        //maxAnts = 5000, //Not used temporally
         width = 300,
         height = 300,
         context,
         imageData,
-        startingAnts = 1000,
-        maxAnts = 500,
+        canvas,
         ants = [],
+        food = [{x: 10, y: 10}, {x: 100, y: 100}],
         defaultAnt = {
             "x" : 10,
             "y" : 10,
@@ -33,13 +34,13 @@
         context = canvas.getContext('2d');
         imageData = context.createImageData(1, 1);
         
-        for (i = 0; i < startingAnts; i++) {
+        _.times(startingAnts, function(i) {
             ants.push(_.extend(_.clone(defaultAnt), {
                 "x" : (Math.floor(Math.random() * width)),
                 "y" : (Math.floor(Math.random() * height))
             }));
             ants[i].step();
-        }
+        });
     }
 
     function moveAnt(ant) {
