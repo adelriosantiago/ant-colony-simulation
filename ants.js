@@ -1,9 +1,11 @@
 //TODO: Enable enclosure when deploying
 /*(function () {*/
     var canvas,
+        width = 600,
+        height = 600,
         context,
         imageData,
-        startingAnts = 5000,
+        startingAnts = 1000,
         maxAnts = 500,
         ants = [],
         defaultAnt = {
@@ -11,10 +13,10 @@
             "y" : 10,
             "life" : 255,
             "overArousal" : true, //True for an over aroused ant
-            "foodFound" : false, //True for an ant that carries food
+            "foodFound" : false, //True for an ant that found and carries food
             "exploring" : true, //True for an ant that is actively looking for food
             "returning" : false, //True for an ant that is returning home
-            "step" : function () {
+            "step" : function() {
                 moveAnt(this);
                 setTimeout(function() {
                     this.step();
@@ -26,8 +28,8 @@
         var i;
 
         canvas = document.getElementById('world');
-        canvas.width = 600;
-        canvas.height = 600;
+        canvas.width = width;
+        canvas.height = height;
         context = canvas.getContext('2d');
         imageData = context.createImageData(1, 1);
         
@@ -57,6 +59,17 @@
         selfPaint(ant.x, ant.y, true);
         ant.x += randMove();
         ant.y += randMove();
+        if (ant.x > width) {
+            ant.x = 0;
+        } else if (ant.x < 0) {
+            ant.x = width;
+        }
+        if (ant.y > height) {
+            ant.y = 0;
+        } else if (ant.y < 0) {
+            ant.y = height;
+        }
+        
         selfPaint(ant.x, ant.y, false);
     }
     
