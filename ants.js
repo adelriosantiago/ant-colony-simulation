@@ -1,8 +1,8 @@
 //TODO: Enable enclosure when deploying
 /*(function () {*/
     var canvas,
-        width = 600,
-        height = 600,
+        width = 300,
+        height = 300,
         context,
         imageData,
         startingAnts = 1000,
@@ -35,8 +35,8 @@
         
         for (i = 0; i < startingAnts; i++) {
             ants.push(_.extend(_.clone(defaultAnt), {
-                "x" : (Math.floor(Math.random() * 600)),
-                "y" : (Math.floor(Math.random() * 600))
+                "x" : (Math.floor(Math.random() * width)),
+                "y" : (Math.floor(Math.random() * height))
             }));
             ants[i].step();
         }
@@ -59,6 +59,8 @@
         selfPaint(ant.x, ant.y, true);
         ant.x += randMove();
         ant.y += randMove();
+        
+        //Avoid the ants from disappearing on the canvas limits
         if (ant.x > width) {
             ant.x = 0;
         } else if (ant.x < 0) {
