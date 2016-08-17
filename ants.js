@@ -8,7 +8,7 @@
         imageData,
         canvas,
         ants = [],
-        food = [{x: 10, y: 10}, {x: 100, y: 100}],
+        foods = [{x: 2, y: 2}, {x: 100, y: 100}],
         defaultAnt = {
             "x" : 10,
             "y" : 10,
@@ -16,13 +16,14 @@
             "overArousal" : true, //True for an over aroused ant
             "foodFound" : false, //True for an ant that found and carries food
             "exploring" : true, //True for an ant that is actively looking for food
-            "returning" : false, //True for an ant that is returning home
+            "returning" : false/*, //True for an ant that is returning home
+            "moveNext" : false, //True for an ant that is about to move on the next step
             "step" : function() {
-                moveAnt(this);
+                this.moveNext = true;
                 setTimeout(function() {
                     this.step();
                 }.bind(this), 200 - (200 * this.overArousal));
-            }
+            }*/
         };
     
     function init() {
@@ -37,10 +38,62 @@
                 "x" : _.random(0, width),
                 "y" : _.random(0, height)
             }));
-            ants[i].step();
+            //ants[i].step();
         });
+        
+        processWorld();
     }
 
+    processWorld = function() {
+        function selfPaint(x, y, inverse) {
+            imageData.data[0] = 255 * inverse;
+            imageData.data[1] = 255 * inverse;
+            imageData.data[2] = 255 * inverse;
+            imageData.data[3] = 255;
+            
+            context.putImageData(imageData, x, y);
+            return;
+        }
+        
+        _.each(foods, function(food) {
+            drawing = new Image();
+            drawing.src = "candy.png"; // can also be a remote URL e.g. http://
+            drawing.onload = function() {
+               context.drawImage(drawing, food.x, food.y);
+            };
+        })
+        
+        _.each(ants, function(ant) {
+            selfPaint(ant.x, ant.y, true);
+            ant.x += _.random(-1, 1);
+            
+            //Move X
+            if (ant.x > width) {
+                ant.x = 0;
+            } else if (ant.x < 0) {
+                ant.x = width;
+            }
+            
+            //Move Y
+            ant.y += _.random(-1, 1);
+            if (ant.y > height) {
+                ant.y = 0;
+            } else if (ant.y < 0) {
+                ant.y = height;
+            }
+            
+            selfPaint(ant.x, ant.y, false);
+            
+            /*_.each(foods, function(food) {
+                if (food.x )
+            });*/
+        });
+        
+        setTimeout(function() {
+            processWorld();
+        }, 50);
+    }
+    
     function moveAnt(ant) {
         function selfPaint(x, y, inverse) {
             imageData.data[0] = 255 * inverse;
@@ -51,6 +104,7 @@
             context.putImageData(imageData, x, y);
             return;
         }
+        
         function randMove() {
             return (Math.floor(Math.random() * 3) - 1);
         }
