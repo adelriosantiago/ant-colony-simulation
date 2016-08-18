@@ -76,39 +76,5 @@
         }, 50);
     }
     
-    function moveAnt(ant) {
-        function selfPaint(x, y, inverse) {
-            imageData.data[0] = 255 * inverse;
-            imageData.data[1] = 255 * inverse;
-            imageData.data[2] = 255 * inverse;
-            imageData.data[3] = 255;
-            
-            context.putImageData(imageData, x, y);
-            return;
-        }
-        
-        function randMove() {
-            return (Math.floor(Math.random() * 3) - 1);
-        }
-        
-        selfPaint(ant.x, ant.y, true);
-        ant.x += randMove();
-        ant.y += randMove();
-        
-        //Avoid the ants from disappearing on the canvas limits
-        if (ant.x > width) {
-            ant.x = 0;
-        } else if (ant.x < 0) {
-            ant.x = width;
-        }
-        if (ant.y > height) {
-            ant.y = 0;
-        } else if (ant.y < 0) {
-            ant.y = height;
-        }
-        
-        selfPaint(ant.x, ant.y, false);
-    }
-    
     init();
 /*})();*/
