@@ -62,21 +62,11 @@
         _.each(ants, function(ant) {
             selfPaint(ant.x, ant.y, [255, 255, 255]);
             
-			//Move X
-            ant.x += _.random(-1, 1);
-            if (ant.x > width) {
-                ant.x = 0;
-            } else if (ant.x < 0) {
-                ant.x = width;
-            }
+            ant.x += _.random(-1, 1) //Move X
+            ant.x = Math.max(0, Math.min(ant.x, width));
             
-            //Move Y
-            ant.y += _.random(-1, 1);
-            if (ant.y > height) {
-                ant.y = 0;
-            } else if (ant.y < 0) {
-                ant.y = height;
-            }
+            ant.y += _.random(-1, 1); //Move Y
+            ant.y = Math.max(0, Math.min(ant.y, height));
             
             selfPaint(ant.x, ant.y, [0, 0, 0]);
         });
