@@ -45,10 +45,10 @@
     }
 
     processWorld = function() {
-        function selfPaint(x, y, inverse) {
-            imageData.data[0] = 255 * inverse;
-            imageData.data[1] = 255 * inverse;
-            imageData.data[2] = 255 * inverse;
+        function selfPaint(x, y, color) {
+            imageData.data[0] = color[0];
+            imageData.data[1] = color[1];
+            imageData.data[2] = color[2];
             imageData.data[3] = 255;
             
             context.putImageData(imageData, x, y);
@@ -56,18 +56,14 @@
         }
         
         _.each(foods, function(food) {
-            drawing = new Image();
-            drawing.src = "candy.png"; // can also be a remote URL e.g. http://
-            drawing.onload = function() {
-               context.drawImage(drawing, food.x, food.y);
-            };
+            selfPaint(food.x, food.y, [255, 0, 0]);
         })
         
         _.each(ants, function(ant) {
-            selfPaint(ant.x, ant.y, true);
-            ant.x += _.random(-1, 1);
+            selfPaint(ant.x, ant.y, [255, 255, 255]);
             
-            //Move X
+			//Move X
+            ant.x += _.random(-1, 1);
             if (ant.x > width) {
                 ant.x = 0;
             } else if (ant.x < 0) {
@@ -82,11 +78,7 @@
                 ant.y = height;
             }
             
-            selfPaint(ant.x, ant.y, false);
-            
-            /*_.each(foods, function(food) {
-                if (food.x )
-            });*/
+            selfPaint(ant.x, ant.y, [0, 0, 0]);
         });
         
         setTimeout(function() {
