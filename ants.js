@@ -1,4 +1,4 @@
-//TODO: Enable enclosure when deploying
+//TODO: Enable enclosure on production
 /*(function () {*/
     var startingAnts = 1000,
         //maxAnts = 5000, //Not used temporally
@@ -16,7 +16,8 @@
             "overArousal" : true, //True for an over aroused ant
             "foodFound" : false, //True for an ant that found and carries food
             "exploring" : true, //True for an ant that is actively looking for food
-            "returning" : false/*, //True for an ant that is returning home
+            "returning" : false, //True for an ant that is returning home
+            "inventory" : []/*,
             "moveNext" : false, //True for an ant that is about to move on the next step
             "step" : function() {
                 this.moveNext = true;
@@ -63,10 +64,24 @@
             selfPaint(ant.x, ant.y, [255, 255, 255]);
             
             ant.x += _.random(-1, 1) //Move X
-            ant.x = Math.max(0, Math.min(ant.x, width));
+            ant.x = _.clamp(ant.x, width);
             
             ant.y += _.random(-1, 1); //Move Y
-            ant.y = Math.max(0, Math.min(ant.y, height));
+            ant.y = _.clamp(ant.y, height);
+            _.each(foods, function(food) {
+                function insideRange(a, b) {
+                    if (Math.abs(a - b) < 2) return true;
+                    return false;
+                }
+                if (insideRange(food.x, ant.x) && insideRange(food.y, ant.y)) {
+                    console.log("TEST");
+                    ant.foodFound = true;
+                    ant.returning = true;
+                    ant.exploring = false;
+                    ant.inventory.push(food);
+                    console.log(ant);
+                }
+            });
             
             selfPaint(ant.x, ant.y, [0, 0, 0]);
         });
