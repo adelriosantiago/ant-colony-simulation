@@ -8,7 +8,7 @@
         imageData,
         canvas,
         ants = [],
-        foods = [{x: 2, y: 2}, {x: 100, y: 100}],
+        foods = [],
         defaultAnt = {
             "x" : 10,
             "y" : 10,
@@ -40,6 +40,20 @@
                 "y" : _.random(0, height)
             }));
             //ants[i].step();
+        });
+        
+        //Create starting food sources
+        _.times(_.random(2, 8), function(i) {
+            var xCenter = _.random(0, width),
+                yCenter = _.random(0, height);
+                
+            _.times(_.random(10, 30), function(i) {
+                foods.push({
+                    owner: null,
+                    x: xCenter + _.random(0, 10),
+                    y: yCenter + _.random(0, 10)
+                });
+            });
         });
         
         processWorld();
