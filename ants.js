@@ -7,17 +7,18 @@
         context,
         imageData,
         canvas,
+        pheromones = [],
         ants = [],
         foods = [],
         defaultAnt = {
+            "id" : null,
             "x" : 10,
             "y" : 10,
             "life" : 255,
             "overArousal" : true, //True for an over aroused ant
             "foodFound" : false, //True for an ant that found and carries food
             "exploring" : true, //True for an ant that is actively looking for food
-            "returning" : false, //True for an ant that is returning home
-            "inventory" : []/*,
+            "returning" : false/*, //True for an ant that is returning home
             "moveNext" : false, //True for an ant that is about to move on the next step
             "step" : function() {
                 this.moveNext = true;
@@ -34,13 +35,25 @@
         context = canvas.getContext('2d');
         imageData = context.createImageData(1, 1);
         
+        //Create starting ants
         _.times(startingAnts, function(i) {
             ants.push(_.extend(_.clone(defaultAnt), {
+                "id" : _.sampleSize("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 10).join(""),
                 "x" : _.random(0, width),
                 "y" : _.random(0, height)
             }));
             //ants[i].step();
         });
+        
+        //Create pheromones map
+        /*_.times(width, function(x) {
+            _.times(height, function(y) {
+                console.log(x + ", " + y);
+            });
+        });*/
+        
+        
+        //console.log(ants);
         
         //Create starting food sources
         _.times(_.random(2, 8), function(i) {
@@ -50,8 +63,8 @@
             _.times(_.random(10, 30), function(i) {
                 foods.push({
                     owner: null,
-                    x: xCenter + _.random(0, 10),
-                    y: yCenter + _.random(0, 10)
+                    "x": xCenter + _.random(0, 10),
+                    "y": yCenter + _.random(0, 10)
                 });
             });
         });
@@ -71,13 +84,17 @@
         }
         
         _.each(foods, function(food) {
-            selfPaint(food.x, food.y, [255, 0, 0]);
+            if (food.owner != null) {
+                selfPaint(food.x, food.y, [0, 255, 0]);
+            } else {
+                selfPaint(food.x, food.y, [255, 0, 0]);
+            }
         })
         
         _.each(ants, function(ant) {
             selfPaint(ant.x, ant.y, [255, 255, 255]);
             
-            ant.x += _.random(-1, 1) //Move X
+            ant.x += _.random(-1, 1); //Move X
             ant.x = _.clamp(ant.x, width);
             
             ant.y += _.random(-1, 1); //Move Y
@@ -87,13 +104,14 @@
                     if (Math.abs(a - b) < 2) return true;
                     return false;
                 }
-                if (insideRange(food.x, ant.x) && insideRange(food.y, ant.y)) {
-                    console.log("TEST");
+                if ((insideRange(food.x, ant.x)) && (insideRange(food.y, ant.y)) && (food.owner == null) && (ant.foodFound == false)) {
+                    //console.log("TEST");
                     ant.foodFound = true;
                     ant.returning = true;
                     ant.exploring = false;
-                    ant.inventory.push(food);
-                    console.log(ant);
+                    //ant.inventory.push(food);
+                    food.owner = ant.id;
+                    console.log(food);
                 }
             });
             
