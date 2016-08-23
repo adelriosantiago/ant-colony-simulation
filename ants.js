@@ -1,6 +1,6 @@
 //TODO: Enable enclosure on production
 /*(function () {*/
-    var startingAnts = 1000,
+    var startingAnts = 100,
         //maxAnts = 5000, //Not used temporally
         width = 300,
         height = 300,
@@ -13,7 +13,7 @@
 			},
 			food: [0, 255, 0],
 			trail: {
-				weak: [153, 204, 255],
+				weak: [219, 246, 255],
 				strong: [255, 255, 0]
 			}
 		},
@@ -96,6 +96,7 @@
         
         _.each(ants, function(ant) {
             //selfPaint(ant.x, ant.y, colors.empty);
+            paint(ant.x, ant.y, colors.trail.weak);
             
             ant.x += _.random(-1, 1); //Move X
             ant.x = _.clamp(ant.x, width);
@@ -115,7 +116,8 @@
                 }
             });
             
-            paint(ant.x, ant.y, colors.ant.normal);
+            
+			paint(ant.x, ant.y, colors.ant.normal);
         });
         
         setTimeout(function() {
