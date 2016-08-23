@@ -82,10 +82,19 @@
             context.putImageData(imageData, x, y);
             return;
         }
-        
+
         _.each(foods, function(food) {
             if (food.owner != null) {
-                selfPaint(food.x, food.y, [0, 255, 0]);
+                selfPaint(food.x + 1, food.y, [255, 255, 255]);
+                selfPaint(food.x - 1, food.y, [255, 255, 255]);
+                selfPaint(food.x, food.y + 1, [255, 255, 255]);
+                selfPaint(food.x, food.y - 1, [255, 255, 255]);
+                food.x = _.find(ants, _.matchesProperty('id', food.owner)).x;
+                food.y = _.find(ants, _.matchesProperty('id', food.owner)).y;
+                selfPaint(food.x + 1, food.y, [0, 255, 0]);
+                selfPaint(food.x - 1, food.y, [0, 255, 0]);
+                selfPaint(food.x, food.y + 1, [0, 255, 0]);
+                selfPaint(food.x, food.y - 1, [0, 255, 0]);
             } else {
                 selfPaint(food.x, food.y, [255, 0, 0]);
             }
