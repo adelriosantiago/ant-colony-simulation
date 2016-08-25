@@ -18,7 +18,7 @@
 			}
 		},
         context,
-        imageData,
+        newPixel,
         canvas,
         pheromones = [],
         ants = [],
@@ -44,7 +44,7 @@
         canvas.width = width;
         canvas.height = height;
         context = canvas.getContext('2d');
-        imageData = context.createImageData(1, 1);
+        newPixel = context.createImageData(1, 1);
         
         //Create starting ants
         _.times(startingAnts, function(i) {
@@ -83,30 +83,28 @@
         var currentCanvas = context.getImageData(0, 0, width, height);
         
         function getPixel(imgData, index) {
-          var i = index*4;
-          var d = imgData.data;
-          
-          //console.log(imgData.data);
-          
-          return [d[i],d[i+1],d[i+2],d[i+3]] // returns array [R,G,B,A]
+            return imgData.data[(index * 4) + 3]; // returns array [R,G,B,A]
         }
-        // AND/OR
-        function getPixelXY(imgData, x, y) {
-          return getPixel(imgData, y*imgData.width+x);
+        function getPixelXY(imgData, x, y) {        
+            return getPixel(imgData, y*imgData.width+x);
+        }
+        
+        function getPx(x, y) {
+            
         }
     
         function paint(x, y, color, fixedColor) {
             
-            imageData.data[0] = color[0];
-            imageData.data[1] = color[1];
-            imageData.data[2] = color[2];
+            newPixel.data[0] = color[0];
+            newPixel.data[1] = color[1];
+            newPixel.data[2] = color[2];
             //if (fixedColor) {
-            //    imageData.data[3] = 255;
+            //    newPixel.data[3] = 255;
             //} else {
-                imageData.data[3] = _.clamp((getPixelXY(currentCanvas, x, y))[3] + 10, 255);
+                newPixel.data[3] = _.clamp(getPixelXY(currentCanvas, x, y) + 50, 255);
             //}
             
-            context.putImageData(imageData, x, y);
+            context.putImageData(newPixel, x, y);
             return;
         }
 
