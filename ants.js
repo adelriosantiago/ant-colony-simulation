@@ -7,15 +7,11 @@
         colors = {
 			empty: [255, 255, 255],
 			ant: {
-				normal: [0, 0, 0],
-				inDanger: [255, 0, 0],
-				dead: [192, 192, 192]
+				normal: [0, 0, 255, 255],
+				dead: [192, 192, 192, 255]
 			},
 			food: [0, 255, 0],
-			trail: {
-				weak: [255, 0, 0],
-				strong: [255, 255, 0]
-			}
+			trail: [255, 0, 0, 255]
 		},
         context,
         newPixel,
@@ -83,38 +79,49 @@
         var currentCanvas = context.getImageData(0, 0, width, height);
         
         function getPixel(imgData, index) {
-            return imgData.data[(index * 4) + 3]; // returns array [R,G,B,A]
+            return imgData.data[(index * 4) + 3];
         }
         function getPixelXY(imgData, x, y) {        
             return getPixel(imgData, y*imgData.width+x);
         }
         
-        function getPx(x, y) {
+        /*function getPixelEx(imgData, index) {
+            var i = index * 4;
             
+            return [imgData.data[i + 0], imgData.data[i + 1], imgData.data[i + 2], imgData.data[i + 3]];
         }
-    
+        function getPixelXYEx(imgData, x, y) {
+            return getPixelEx(imgData, y*imgData.width+x);
+        }*/
+        
         function paint(x, y, color, fixedColor) {
-            
             newPixel.data[0] = color[0];
             newPixel.data[1] = color[1];
             newPixel.data[2] = color[2];
             //if (fixedColor) {
             //    newPixel.data[3] = 255;
             //} else {
-                newPixel.data[3] = _.clamp(getPixelXY(currentCanvas, x, y) + 50, 255);
+                //newPixel.data[3] = _.clamp(getPixelXY(currentCanvas, x, y) + 50, 255);
             //}
+            
+            newPixel.data[3] = color[3];
             
             context.putImageData(newPixel, x, y);
             return;
         }
 
         _.each(foods, function(food) {
-			paint(food.x, food.y, colors.food, true);
+            paint(food.x, food.y, colors.food, true);
         })
         
         _.each(ants, function(ant) {
-            //paint(ant.x, ant.y, colors.empty, true);
-            paint(ant.x, ant.y, colors.trail.weak, false);
+            //if (ant.lastColor) paint(ant.x, ant.y, ant.lastColor, false);
+            paint(ant.x, ant.y, colors.ant.normal, false);
+            //_.each(ants, function(ant) {
+            //    console.log("wait");
+            //});
+            //ant.lastColor = getPixelXYEx(currentCanvas, ant.x, ant.y);            
+            //paint(ant.x, ant.y, colors.ant.normal, false);
             
             ant.x += _.random(-1, 1); //Move X
             ant.x = _.clamp(ant.x, width);
