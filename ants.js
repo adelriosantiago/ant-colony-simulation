@@ -19,6 +19,8 @@
         pheromones = [],
         ants = [],
         foods = [],
+        trailTrigger = 10,
+        trailWash = 0,
         defaultAnt = {
             "x" : 10,
             "y" : 10,
@@ -76,21 +78,20 @@
     }
 
     processWorld = function() {
+        //var oldCanvas = currentCanvas;
         var currentCanvas = context.getImageData(0, 0, width, height);
         
-        function getPixel(imgData, index) {
-            return imgData.data[(index * 4) + 3];
-        }
-        function getPixelXY(imgData, x, y) {        
-            return getPixel(imgData, y*imgData.width+x);
+        function getPixelChannel(imgData, x, y, channel) {
+            return imgData.data[((y * imgData.width + x) * 4) + channel];
         }
         
-        /*function getPixelEx(imgData, index) {
-            var i = index * 4;
-            
-            return [imgData.data[i + 0], imgData.data[i + 1], imgData.data[i + 2], imgData.data[i + 3]];
-        }
-        function getPixelXYEx(imgData, x, y) {
+        /*function getPixelXYEx(imgData, x, y) {
+            function getPixelEx(imgData, index) {
+                var i = index * 4;
+                
+                return [imgData.data[i + 0], imgData.data[i + 1], imgData.data[i + 2], imgData.data[i + 3]];
+            }
+        
             return getPixelEx(imgData, y*imgData.width+x);
         }*/
         
@@ -101,7 +102,7 @@
             //if (fixedColor) {
             //    newPixel.data[3] = 255;
             //} else {
-                //newPixel.data[3] = _.clamp(getPixelXY(currentCanvas, x, y) + 50, 255);
+                //newPixel.data[3] = _.clamp(getPixelChannel(currentCanvas, x, y, 3) + 10, 255);
             //}
             
             newPixel.data[3] = color[3];
@@ -109,7 +110,35 @@
             context.putImageData(newPixel, x, y);
             return;
         }
-
+        
+        trailWash++;
+        if (trailWash >= trailTrigger) {
+            console.log("wash");
+            trailWash = 0;
+ 
+            _.times(width, function(x) {
+                _.times(height, function(y) {
+                    var index = ((y * width + x) * 4) + 3;
+                    currentCanvas.data[index] = currentCanvas.data[index] - 1;
+                    //context.putImageData(newPixel, x, y);
+                    //data[((y*currentCanvas.width+x) * 4) + 3] = data[((y*currentCanvas.width+x) * 4) + 3] - 1;
+                });
+            });
+            
+            context.putImageData(currentCanvas, 0, 0);
+            
+            //context.putImageData(newPixel, x, y);
+            
+            /*var data = currentCanvas.data;
+            _.times(width, function(x) {
+                _.times(height, function(y) {
+                    //context.putImageData(newPixel, x, y);
+                    //data[((y*currentCanvas.width+x) * 4) + 3] = data[((y*currentCanvas.width+x) * 4) + 3] - 1;
+                });
+            });
+            context.putImageData(data, 0, 0);*/
+        }
+        
         _.each(foods, function(food) {
             paint(food.x, food.y, colors.food, true);
         })
