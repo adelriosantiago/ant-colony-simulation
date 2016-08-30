@@ -1,13 +1,13 @@
 //TODO: Enable enclosure on production
 /*(function () {*/
-	var startingAnts = 100,
+	var startingAnts = 3,
 		//maxAnts = 5000, //Not used temporarily
 		width = 300,
 		height = 300,
 		colors = {
 			empty: [255, 255, 255],
 			ant: {
-				normal: [0, 0, 255, 255],
+				normal: [0, 0, 0, 255],
 				dead: [192, 192, 192, 255]
 			},
 			food: [0, 255, 0],
@@ -15,12 +15,12 @@
 		},
 		context,
 		newPixel,
+		pheromones,
 		canvas,
-		pheromones = [],
 		ants = [],
+		food = { sources: [], color: [0, 255, 0] }
 		foods = [],
-		trailTrigger = 10,
-		trailWash = 5,
+		trail = { count: 0, trigger: 10, wash: 3 } //Every "trigger" times, the pheromones trail will wash by "wash" times
 		defaultAnt = {
 			"x" : 10,
 			"y" : 10,
@@ -43,6 +43,7 @@
 		canvas.height = height;
 		context = canvas.getContext('2d');
 		newPixel = context.createImageData(1, 1);
+		pheromones = context.createImageData(width, height);
 		
 		//Create starting ants
 		_.times(startingAnts, function(i) {
@@ -50,16 +51,7 @@
 				"x" : _.random(0, width),
 				"y" : _.random(0, height)
 			}));
-			//ants[i].step();
 		});
-		
-		//Create pheromones map
-		/*_.times(width, function(x) {
-			_.times(height, function(y) {
-				console.log(x + ", " + y);
-			});
-		});*/
-		//console.log(ants);
 		
 		//Create starting food sources
 		_.times(_.random(2, 8), function(i) {
@@ -67,7 +59,7 @@
 				yCenter = _.random(0, height);
 				
 			_.times(_.random(10, 30), function(i) {
-				foods.push({
+				food.sources.push({
 					"x": xCenter + _.random(0, 10),
 					"y": yCenter + _.random(0, 10)
 				});
@@ -79,7 +71,9 @@
 
 	processWorld = function() {
 		//var oldCanvas = currentCanvas;
-		var currentCanvas = context.getImageData(0, 0, width, height);
+		//var currentCanvas = context.getImageData(0, 0, width, height);
+		
+		context.putImageData(pheromones, 0, 0);
 		
 		function getPixelChannel(imgData, x, y, channel) {
 			return imgData.data[((y * imgData.width + x) * 4) + channel];
@@ -95,69 +89,57 @@
 			return getPixelEx(imgData, y*imgData.width+x);
 		}*/
 		
-		function paint(x, y, color, fixedColor) {
+		function paint(x, y, color) {
 			newPixel.data[0] = color[0];
 			newPixel.data[1] = color[1];
 			newPixel.data[2] = color[2];
-			//if (fixedColor) {
-			//	newPixel.data[3] = 255;
-			//} else {
-				//newPixel.data[3] = _.clamp(getPixelChannel(currentCanvas, x, y, 3) + 10, 255);
-			//}
-			
 			newPixel.data[3] = color[3];
-			
 			context.putImageData(newPixel, x, y);
-			return;
 		}
 		
-		trailWash++;
-		if (trailWash >= trailTrigger) {
+		function paintTrail(x, y) {
+			var index = ((y * width + x) * 4);
+			
+			pheromones.data[index] = 255;
+			pheromones.data[index + 1] = 0;
+			pheromones.data[index + 2] = 0;
+			pheromones.data[index + 3] = 255;
+		}
+		
+		//trail.count++;
+		if (trail.count >= trail.trigger) {
 			console.log("wash");
-			trailWash = 0;
- 
+			trail.count = 0;
 			_.times(width, function(x) {
 				_.times(height, function(y) {
 					var index = ((y * width + x) * 4) + 3;
-					currentCanvas.data[index] = currentCanvas.data[index] - 3;
+					pheromones.data[index] = pheromones.data[index] - trail.wash;
 					//context.putImageData(newPixel, x, y);
 					//data[((y*currentCanvas.width+x) * 4) + 3] = data[((y*currentCanvas.width+x) * 4) + 3] - 1;
 				});
 			});
 			
-			context.putImageData(currentCanvas, 0, 0);
-			
-			//context.putImageData(newPixel, x, y);
-			
-			/*var data = currentCanvas.data;
-			_.times(width, function(x) {
-				_.times(height, function(y) {
-					//context.putImageData(newPixel, x, y);
-					//data[((y*currentCanvas.width+x) * 4) + 3] = data[((y*currentCanvas.width+x) * 4) + 3] - 1;
-				});
-			});
-			context.putImageData(data, 0, 0);*/
+			context.putImageData(pheromones, 0, 0);
 		}
 		
-		_.each(foods, function(food) {
-			paint(food.x, food.y, colors.food, true);
-		})
+		_.each(food.sources, function(food) {
+			paint(food.x, food.y, colors.food);
+		});
 		
 		_.each(ants, function(ant) {
-			//if (ant.lastColor) paint(ant.x, ant.y, ant.lastColor, false);
-			paint(ant.x, ant.y, colors.ant.normal, false);
-			//_.each(ants, function(ant) {
-			//	console.log("wait");
-			//});
-			//ant.lastColor = getPixelXYEx(currentCanvas, ant.x, ant.y);			
-			//paint(ant.x, ant.y, colors.ant.normal, false);
+			paint(ant.x, ant.y, colors.empty, true);
+			paintTrail(ant.x, ant.y, colors.trail);
+			
+			//TODO: Implement pheromone trail search here
 			
 			ant.x += _.random(-1, 1); //Move X
 			ant.x = _.clamp(ant.x, width);
 			
 			ant.y += _.random(-1, 1); //Move Y
 			ant.y = _.clamp(ant.y, height);
-			_.each(foods, function(food) {
+			
+			
+			_.each(food.sources, function(food) {
 				function insideRange(a, b) {
 					if (Math.abs(a - b) < 2) return true;
 					return false;
@@ -170,12 +152,12 @@
 				}
 			});
 			
-			//paint(ant.x, ant.y, colors.ant.normal, true);
+			paint(ant.x, ant.y, colors.ant.normal);
 		});
 		
 		setTimeout(function() {
 			processWorld();
-		}, 50);
+		}, 5);
 	}
 	
 	init();
