@@ -1,6 +1,6 @@
 //TODO: Enable enclosure on production
 /*(function () {*/
-	var startingAnts = 3,
+	var startingAnts = 1,
 		//maxAnts = 5000, //Not used temporarily
 		width = 300,
 		height = 300,
@@ -15,7 +15,8 @@
 		},
 		context,
 		newPixel,
-		pheromones,
+		antsMap,
+		pheromonesMap,
 		canvas,
 		ants = [],
 		food = { sources: [], color: [0, 255, 0] }
@@ -43,7 +44,8 @@
 		canvas.height = height;
 		context = canvas.getContext('2d');
 		newPixel = context.createImageData(1, 1);
-		pheromones = context.createImageData(width, height);
+		antsMap = context.createImageData(width, height);
+		pheromonesMap = context.createImageData(width, height);
 		
 		//Create starting ants
 		_.times(startingAnts, function(i) {
@@ -73,10 +75,16 @@
 		//var oldCanvas = currentCanvas;
 		//var currentCanvas = context.getImageData(0, 0, width, height);
 		
-		context.putImageData(pheromones, 0, 0);
+		//context.putImageData(pheromonesMap, 0, 0);
+		context.putImageData(antsMap, 0, 0);
 		
 		function getPixelChannel(imgData, x, y, channel) {
 			return imgData.data[((y * imgData.width + x) * 4) + channel];
+		}
+		
+		function setPixelChannel(imgData, x, y, channel, value, alpha) {
+			imgData.data[((y * imgData.width + x) * 4) + channel] = value;
+			if (alpha) imgData.data[((y * imgData.width + x) * 4) + 3] = alpha;
 		}
 		
 		/*function getPixelXYEx(imgData, x, y) {
@@ -100,10 +108,10 @@
 		function paintTrail(x, y) {
 			var index = ((y * width + x) * 4);
 			
-			pheromones.data[index] = 255;
-			pheromones.data[index + 1] = 0;
-			pheromones.data[index + 2] = 0;
-			pheromones.data[index + 3] = 255;
+			pheromonesMap.data[index] = 255;
+			pheromonesMap.data[index + 1] = 0;
+			pheromonesMap.data[index + 2] = 0;
+			pheromonesMap.data[index + 3] = 255;
 		}
 		
 		//trail.count++;
@@ -113,13 +121,13 @@
 			_.times(width, function(x) {
 				_.times(height, function(y) {
 					var index = ((y * width + x) * 4) + 3;
-					pheromones.data[index] = pheromones.data[index] - trail.wash;
+					pheromonesMap.data[index] = pheromonesMap.data[index] - trail.wash;
 					//context.putImageData(newPixel, x, y);
 					//data[((y*currentCanvas.width+x) * 4) + 3] = data[((y*currentCanvas.width+x) * 4) + 3] - 1;
 				});
 			});
 			
-			context.putImageData(pheromones, 0, 0);
+			context.putImageData(pheromonesMap, 0, 0);
 		}
 		
 		_.each(food.sources, function(food) {
@@ -127,16 +135,27 @@
 		});
 		
 		_.each(ants, function(ant) {
-			paint(ant.x, ant.y, colors.empty, true);
-			paintTrail(ant.x, ant.y, colors.trail);
+			setPixelChannel(antsMap, ant.x, ant.y, 0, 255); //Paint ant R
+			setPixelChannel(antsMap, ant.x, ant.y, 1, 255); //Paint ant G
+			setPixelChannel(antsMap, ant.x, ant.y, 2, 255, 255); //Paint ant B			
 			
-			//TODO: Implement pheromone trail search here
+			//setPixelChannel(pheromonesMap, ant.x, ant.y, 0, 255, 255); //Paint trail
+			
+			/*//TODO: Implement pheromone trail search here
+			newX = _.clamp(ant.x + _.random(-1, 1), width); //Move X
+			newY = _.clamp(ant.y + _.random(-1, 1), height); //Move Y
+			getPixelChannel()*/
 			
 			ant.x += _.random(-1, 1); //Move X
 			ant.x = _.clamp(ant.x, width);
 			
 			ant.y += _.random(-1, 1); //Move Y
 			ant.y = _.clamp(ant.y, height);
+			
+			setPixelChannel(antsMap, ant.x, ant.y, 0, 0); //Paint ant R
+			setPixelChannel(antsMap, ant.x, ant.y, 1, 0); //Paint ant G
+			setPixelChannel(antsMap, ant.x, ant.y, 2, 0, 255); //Paint ant B
+			
 			
 			
 			_.each(food.sources, function(food) {
@@ -152,7 +171,8 @@
 				}
 			});
 			
-			paint(ant.x, ant.y, colors.ant.normal);
+			//paint(ant.x, ant.y, colors.ant.normal);
+			
 		});
 		
 		setTimeout(function() {
