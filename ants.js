@@ -1,6 +1,6 @@
 //TODO: Enable enclosure on production
 /*(function () {*/
-	var startingAnts = 10,
+	var startingAnts = 1,
 		//maxAnts = 5000, //Not used temporarily
 		width = 300,
 		height = 300,
@@ -16,8 +16,8 @@
 		mainMap,
 		canvas,
 		ants = [],
-		food = { sources: [], color: [0, 255, 0] }
-		foods = [],
+		food = { locations: [], color: [0, 255, 0] }
+		nest = { locations: [], color: [0, 255, 0] }
 		trail = { count: 0, trigger: 10, wash: 1, color: [255, 0, 0, 255]} //Every "trigger" times, the pheromones trail will wash by "wash" times
 		defaultAnt = {
 			"x" : 10,
@@ -50,15 +50,15 @@
 			}));
 		});
 		
-		//Create starting food sources
-		_.times(_.random(2, 8), function(i) {
+		//Create starting food locations
+		_.times(_.random(1, 3), function(i) {
 			var xCenter = _.random(0, width),
 				yCenter = _.random(0, height);
 				
-			_.times(_.random(10, 30), function(i) {
-				food.sources.push({
-					"x": xCenter + _.random(0, 10),
-					"y": yCenter + _.random(0, 10)
+			_.times(_.random(3, 8), function(i) {
+				food.locations.push({
+					"x": xCenter + _.random(-10, 10),
+					"y": yCenter + _.random(-10, 10)
 				});
 			});
 		});
@@ -108,7 +108,7 @@
 		
 		trail.count++;
 		if (trail.count >= trail.trigger) {
-			console.log("wash");
+			//console.log("wash");
 			trail.count = 0;
 			_.times(width, function(x) {
 				_.times(height, function(y) {
@@ -122,29 +122,38 @@
 			context.putImageData(mainMap, 0, 0);
 		}
 		
-		_.each(food.sources, function(food) {
+		_.each(food.locations, function(food) {
 			setPixelChannel(mainMap, food.x, food.y, 1, 255, 255); //Paint ant G
 		});
 		
+		//Draw nests here
+		
 		_.each(ants, function(ant) {
-			setPixelChannel(mainMap, ant.x, ant.y, 0, 255, 25, true); //Paint trail
+			setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint trail
 			
-			/*//TODO: Implement pheromone trail search here
-			newX = _.clamp(ant.x + _.random(-1, 1), width); //Move X
-			newY = _.clamp(ant.y + _.random(-1, 1), height); //Move Y
-			getPixelChannel()*/
+			var newX = ant.x + _.random(-1, 1);
+			var newY = ant.y + _.random(-1, 1);
 			
-			ant.x += _.random(-1, 1); //Move X
-			ant.x = _.clamp(ant.x, 0, width - 1);
-			
-			ant.y += _.random(-1, 1); //Move Y
-			ant.y = _.clamp(ant.y, 0, height - 1);
+			if (_.inRange(newX, width) && _.inRange(newY, height)) {
+				var bChannel = getPixelChannel(mainMap, newX, newY, 2);
+				var aChannel = getPixelChannel(mainMap, newX, newY, 3);
+				var force = aChannel / bChannel;
+				if (_.isNaN(force)) force = 0;
+				var chance = _.random(true);
+				
+				if (chance < force) {
+					console.log("on explored territory");
+				}
+				
+				ant.x = newX; //Move X
+				ant.y = newY; //Move Y
+			}
 			
 			setPixelChannel(mainMap, ant.x, ant.y, 0, 0); //Paint ant R
 			setPixelChannel(mainMap, ant.x, ant.y, 1, 0); //Paint ant G
 			setPixelChannel(mainMap, ant.x, ant.y, 2, 0, 255); //Paint ant B
 			
-			_.each(food.sources, function(food) {
+			_.each(food.locations, function(food) {
 				function insideRange(a, b) {
 					if (Math.abs(a - b) < 2) return true;
 					return false;
@@ -160,7 +169,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 5);
+		}, 250);
 	}
 	
 	init();
