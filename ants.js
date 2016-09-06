@@ -1,6 +1,6 @@
 //TODO: Enable enclosure on production
 /*(function () {*/
-	var startingAnts = 1,
+	var startingAnts = 100,
 		//maxAnts = 5000, //Not used temporarily
 		width = 300,
 		height = 300,
@@ -16,23 +16,15 @@
 		mainMap,
 		canvas,
 		ants = [],
-		food = { locations: [], color: [0, 255, 0] }
-		nest = { locations: [], color: [0, 255, 0] }
-		trail = { count: 0, trigger: 10, wash: 1, color: [255, 0, 0, 255]} //Every "trigger" times, the pheromones trail will wash by "wash" times
+		food = { locations: [], color: [0, 255, 0] },
+		nest = { x: _.random(10, width - 10), y: _.random(10, height - 10) },
+		trail = { count: 0, trigger: 10, wash: 1, color: [255, 0, 0, 255] }, //Every "trigger" times, the pheromones trail will wash by "wash" times
 		defaultAnt = {
-			"x" : 10,
-			"y" : 10,
-			"life" : 255,
-			"inDanger" : true, //True for an over aroused ant
-			"foodFound" : false, //True for an ant that has found food and is returning
-			"exploring" : true/*, //True for an ant that is actively looking for food
-			"moveNext" : false, //True for an ant that is about to move on the next step
-			"step" : function() {
-				this.moveNext = true;
-				setTimeout(function() {
-					this.step();
-				}.bind(this), 200 - (200 * this.overArousal));
-			}*/
+			x : 10,
+			y : 10,
+			life : 255,
+			inDanger : true, //True for an over aroused ant
+			foodFound : false //True for an ant that has found food and is returning
 		};
 	
 	function init() {
@@ -45,10 +37,12 @@
 		//Create starting ants
 		_.times(startingAnts, function(i) {
 			ants.push(_.extend(_.clone(defaultAnt), {
-				"x" : _.random(0, width),
-				"y" : _.random(0, height)
+				x: nest.x + _.random(0, 5),
+				y: nest.y + _.random(0, 5)
 			}));
 		});
+		
+		//Create 
 		
 		//Create starting food locations
 		_.times(_.random(1, 3), function(i) {
@@ -122,14 +116,25 @@
 			context.putImageData(mainMap, 0, 0);
 		}
 		
-		_.each(food.locations, function(food) {
-			setPixelChannel(mainMap, food.x, food.y, 1, 255, 255); //Paint ant G
+		//Draw food locations
+		_.each(food.locations, function(el) {
+			setPixelChannel(mainMap, el.x, el.y, 1, 255, 255); //Paint ant G
 		});
 		
-		//Draw nests here
+		//Draw nest locations
+		_.times(5, function(ix) {
+			_.times(5, function(iy) {
+				setPixelChannel(mainMap, nest.x + ix, nest.y + iy, 0, 255, 255);
+				setPixelChannel(mainMap, nest.x + ix, nest.y + iy, 2, 255, 255);
+			});
+		});
 		
 		_.each(ants, function(ant) {
-			setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint trail
+			if (ant.foodFound) {
+				setPixelChannel(mainMap, ant.x, ant.y, 0, 255, 255, true); //Paint food trail
+			} else {
+				setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint scout trail
+			}
 			
 			var newX = ant.x + _.random(-1, 1);
 			var newY = ant.y + _.random(-1, 1);
@@ -137,13 +142,11 @@
 			if (_.inRange(newX, width) && _.inRange(newY, height)) {
 				var bChannel = getPixelChannel(mainMap, newX, newY, 2);
 				var aChannel = getPixelChannel(mainMap, newX, newY, 3);
-				var force = aChannel / bChannel;
-				if (_.isNaN(force)) force = 0;
+				var strength = aChannel / bChannel;
+				if (_.isNaN(strength)) strength = 0;
 				var chance = _.random(true);
 				
-				if (chance < force) {
-					console.log("on explored territory");
-				}
+				if (chance < strength) return; //Return if ant is in explored territory
 				
 				ant.x = newX; //Move X
 				ant.y = newY; //Move Y
@@ -160,8 +163,6 @@
 				}
 				if ((insideRange(food.x, ant.x)) && (insideRange(food.y, ant.y)) && (ant.foodFound == false)) {
 					ant.foodFound = true;
-					ant.returning = true;
-					ant.exploring = false;
 					console.log(food);
 				}
 			});
@@ -169,7 +170,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 250);
+		}, 20);
 	}
 	
 	init();
