@@ -1,6 +1,6 @@
 //TODO: Enable enclosure on production
 /*(function () {*/
-	var startingAnts = 100,
+	var startingAnts = 1,
 		//maxAnts = 5000, //Not used temporarily
 		width = 300,
 		height = 300,
@@ -42,10 +42,8 @@
 			}));
 		});
 		
-		//Create 
-		
 		//Create starting food locations
-		_.times(_.random(1, 3), function(i) {
+		_.times(_.random(100, 101), function(i) {
 			var xCenter = _.random(0, width),
 				yCenter = _.random(0, height);
 				
@@ -140,13 +138,23 @@
 			var newY = ant.y + _.random(-1, 1);
 			
 			if (_.inRange(newX, width) && _.inRange(newY, height)) {
-				var bChannel = getPixelChannel(mainMap, newX, newY, 2);
-				var aChannel = getPixelChannel(mainMap, newX, newY, 3);
-				var strength = aChannel / bChannel;
-				if (_.isNaN(strength)) strength = 0;
-				var chance = _.random(true);
-				
-				if (chance < strength) return; //Return if ant is in explored territory
+				if (ant.foodFound) {
+					var bChannel = getPixelChannel(mainMap, newX, newY, 2);
+					var aChannel = getPixelChannel(mainMap, newX, newY, 3);
+					var strength = aChannel / bChannel;
+					if (_.isNaN(strength)) strength = 0;
+					var chance = _.random(true);
+					
+					if (chance > strength) return;
+				} else {
+					var bChannel = getPixelChannel(mainMap, newX, newY, 2);
+					var aChannel = getPixelChannel(mainMap, newX, newY, 3);
+					var strength = aChannel / bChannel;
+					if (_.isNaN(strength)) strength = 0;
+					var chance = _.random(true);
+					
+					if (chance < strength) return; //Return if ant is in explored territory
+				}
 				
 				ant.x = newX; //Move X
 				ant.y = newY; //Move Y
