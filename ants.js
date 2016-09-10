@@ -98,6 +98,14 @@
 			mainMap.data[index + 3] = 255;
 		}
 		
+		function getTrailStrength(channel, x, y) {
+			var trail = getPixelChannel(mainMap, x, y, channel);
+			var alpha = getPixelChannel(mainMap, x, y, 3);
+			var weakTrail = (alpha * trail) / Math.pow(255, 2);
+			
+			return weakTrail;
+		}
+		
 		trail.count++;
 		if (trail.count >= trail.trigger) {
 			//console.log("wash");
@@ -139,19 +147,14 @@
 			
 			if (_.inRange(newX, width) && _.inRange(newY, height)) {
 				
-					var trailChannel = getPixelChannel(mainMap, newX, newY, 2);
-					var alphaChannel = getPixelChannel(mainMap, newX, newY, 3);
-					var strength = (alphaChannel * trailChannel) / 255;
-					//if (_.isNaN(strength)) strength = 0;
+					var weakTrail = getTrailStrength(2, newX, newY);
 					
+					console.log("s:" + weakTrail);
 					
 					var chance = _.random(true);
-					
-					if (chance < strength) {
-						console.log("xt");
-						console.log(chance);
-						console.log(strength);
-						console.log(ant.foodFound);
+					if (chance < weakTrail) {
+						//console.log("xt");
+						//console.log(ant.foodFound);
 						return; //Return if ant is in explored territory
 						
 					}
