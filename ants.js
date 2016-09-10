@@ -43,7 +43,7 @@
 		});
 		
 		//Create starting food locations
-		_.times(_.random(100, 101), function(i) {
+		_.times(_.random(5, 10), function(i) {
 			var xCenter = _.random(0, width),
 				yCenter = _.random(0, height);
 				
@@ -138,23 +138,24 @@
 			var newY = ant.y + _.random(-1, 1);
 			
 			if (_.inRange(newX, width) && _.inRange(newY, height)) {
-				if (ant.foodFound) {
-					var bChannel = getPixelChannel(mainMap, newX, newY, 2);
-					var aChannel = getPixelChannel(mainMap, newX, newY, 3);
-					var strength = aChannel / bChannel;
-					if (_.isNaN(strength)) strength = 0;
+				
+					var trailChannel = getPixelChannel(mainMap, newX, newY, 2);
+					var alphaChannel = getPixelChannel(mainMap, newX, newY, 3);
+					var strength = (alphaChannel * trailChannel) / 255;
+					//if (_.isNaN(strength)) strength = 0;
+					
+					
 					var chance = _.random(true);
 					
-					if (chance > strength) return;
-				} else {
-					var bChannel = getPixelChannel(mainMap, newX, newY, 2);
-					var aChannel = getPixelChannel(mainMap, newX, newY, 3);
-					var strength = aChannel / bChannel;
-					if (_.isNaN(strength)) strength = 0;
-					var chance = _.random(true);
-					
-					if (chance < strength) return; //Return if ant is in explored territory
-				}
+					if (chance < strength) {
+						console.log("xt");
+						console.log(chance);
+						console.log(strength);
+						console.log(ant.foodFound);
+						return; //Return if ant is in explored territory
+						
+					}
+				
 				
 				ant.x = newX; //Move X
 				ant.y = newY; //Move Y
@@ -178,7 +179,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 20);
+		}, 50);
 	}
 	
 	init();
