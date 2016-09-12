@@ -1,6 +1,6 @@
 //TODO: Enable enclosure on production
 /*(function () {*/
-	var startingAnts = 1,
+	var startingAnts = 100,
 		//maxAnts = 5000, //Not used temporarily
 		width = 300,
 		height = 300,
@@ -18,7 +18,7 @@
 		ants = [],
 		food = { locations: [], color: [0, 255, 0] },
 		nest = { x: _.random(10, width - 10), y: _.random(10, height - 10) },
-		trail = { count: 0, trigger: 10, wash: 1, color: [255, 0, 0, 255] }, //Every "trigger" times, the pheromones trail will wash by "wash" times
+		trail = { count: 0, trigger: 1, wash: 1, color: [255, 0, 0, 255] }, //Every "trigger" times, the pheromones trail will wash by "wash" times
 		defaultAnt = {
 			x : 10,
 			y : 10,
@@ -139,7 +139,7 @@
 			if (ant.foodFound) {
 				setPixelChannel(mainMap, ant.x, ant.y, 0, 255, 255, true); //Paint food trail
 			} else {
-				setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint scout trail
+				setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint walk trail
 			}
 			
 			var newX = ant.x + _.random(-1, 1);
@@ -148,15 +148,35 @@
 			if (_.inRange(newX, width) && _.inRange(newY, height)) {
 				
 					var weakTrail = getTrailStrength(2, newX, newY);
-					
-					console.log("s:" + weakTrail);
+					var foodTrail = getTrailStrength(0, newX, newY);
 					
 					var chance = _.random(true);
-					if (chance < weakTrail) {
-						//console.log("xt");
-						//console.log(ant.foodFound);
-						return; //Return if ant is in explored territory
-						
+					/*console.log("c: " + chance);
+					console.log("w:" + weakTrail);
+					console.log("s: " + foodTrail);*/
+					
+					if (!ant.foodFound) {
+						if (chance < foodTrail) {
+							ant.x = newX; //Move X
+							ant.y = newY; //Move Y
+							return;
+						}
+						if (chance < weakTrail) {
+							//console.log("xt");
+							//console.log(ant.foodFound);
+							return; //Return if ant is in explored territory
+						}
+					} else {
+						if (chance < foodTrail) {
+							ant.x = newX; //Move X
+							ant.y = newY; //Move Y
+							return;
+						}
+						if (chance > weakTrail) {
+							//console.log("xt");
+							//console.log(ant.foodFound);
+							return; //Return if ant is in explored territory
+						}
 					}
 				
 				
@@ -182,7 +202,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 50);
+		}, 5);
 	}
 	
 	init();
