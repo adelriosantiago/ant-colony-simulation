@@ -98,12 +98,12 @@
 			mainMap.data[index + 3] = 255;
 		}
 		
+		//This gets a channel strength (channel * alpha)
 		function getTrailStrength(channel, x, y) {
 			var trail = getPixelChannel(mainMap, x, y, channel);
 			var alpha = getPixelChannel(mainMap, x, y, 3);
-			var weakTrail = (alpha * trail) / Math.pow(255, 2);
 			
-			return weakTrail;
+			return (alpha * trail) / Math.pow(255, 2);
 		}
 		
 		trail.count++;
