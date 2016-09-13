@@ -20,11 +20,13 @@
 		nest = { x: _.random(10, width - 10), y: _.random(10, height - 10) },
 		trail = { count: 0, trigger: 1, wash: 1, color: [255, 0, 0, 255] }, //Every "trigger" times, the pheromones trail will wash by "wash" times
 		defaultAnt = {
-			x : 10,
-			y : 10,
-			life : 255,
-			inDanger : true, //True for an over aroused ant
-			foodFound : false //True for an ant that has found food and is returning
+			x: 10,
+			y: 10,
+			lastX: 0,
+			lastY: 0,
+			life: 255,
+			inDanger: true, //True for an over aroused ant
+			foodFound: false //True for an ant that has found food and is returning
 		};
 	
 	function init() {
@@ -136,17 +138,38 @@
 		});
 		
 		_.each(ants, function(ant) {
+			var diffX,
+				diffY;
+		
 			if (ant.foodFound) {
 				setPixelChannel(mainMap, ant.x, ant.y, 0, 255, 255, true); //Paint food trail
 			} else {
 				setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint walk trail
 			}
 			
-			var newX = ant.x + _.random(-1, 1);
-			var newY = ant.y + _.random(-1, 1);
+			//Calculate new position
+			
+			if ((ant.lastX != 0) && (ant.lastY != 0)) {
+				function validMovement() {
+					diffX = _.random(0, 1) * ant.lastX;
+					diffY = _.random(0, 1) * ant.lastY;
+					if (diffX + diffY == 0) validMovement();
+				}
+				validMovement();
+			} else {
+				if (Math.abs(ant.lastX) == 1) {
+					diffX = ant.lastX;
+					diffY = _.random(-1, 1);
+				} else {
+					diffX = _.random(-1, 1);
+					diffY = ant.lastY;
+				}
+			}
+			
+			var newX = ant.x + diffX;
+			var newY = ant.y + diffY;
 			
 			if (_.inRange(newX, width) && _.inRange(newY, height)) {
-				
 					var weakTrail = getTrailStrength(2, newX, newY);
 					var foodTrail = getTrailStrength(0, newX, newY);
 					
@@ -182,6 +205,8 @@
 				
 				ant.x = newX; //Move X
 				ant.y = newY; //Move Y
+				ant.lastX = diffX;
+				ant.lastY = diffY;
 			}
 			
 			setPixelChannel(mainMap, ant.x, ant.y, 0, 0); //Paint ant R
@@ -202,7 +227,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 5);
+		}, 1);
 	}
 	
 	init();
