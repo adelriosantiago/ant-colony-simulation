@@ -50,7 +50,7 @@
 				getCursorPosition(canvas, el);
 				var toAdd = getCursorPosition(canvas, el);
 				toAdd.x += i;
-				toAdd.y += i;
+				//toAdd.y += i;
 				DEBUG_DRAW.locations.push(toAdd);
 			});
 			
@@ -71,7 +71,7 @@
 		});
 		
 		//Create starting food locations
-		_.times(_.random(5, 10), function(i) {
+		_.times(_.random(50, 100), function(i) {
 			var xCenter = _.random(0, width),
 				yCenter = _.random(0, height);
 				
@@ -144,16 +144,16 @@
 		
 		//DRAW DEBUG LOCATIONS
 		_.each(DEBUG_DRAW.locations, function(el) {
-			setPixelChannel(mainMap, el.x, el.y, 0, 255, 255); //Paint ant G
+			setPixelChannel(mainMap, el.x, el.y, 0, 255, 255);
 		});
 		
-		//Draw nest locations
+		/*//Draw nest locations
 		_.times(5, function(ix) {
 			_.times(5, function(iy) {
 				setPixelChannel(mainMap, nest.x + ix, nest.y + iy, 0, 255, 255);
 				setPixelChannel(mainMap, nest.x + ix, nest.y + iy, 2, 255, 255);
 			});
-		});
+		});*/
 		
 		_.each(ants, function(ant) {
 			var diffX,
@@ -165,131 +165,51 @@
 				setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint walk trail
 			}
 			
-			//Calculate new position
-			if ((ant.lastX != 0) && (ant.lastY != 0)) {
-				var bestX = 0,
-					bestY = 0,
-					bestScore = 0;
-					
-				
-				_.times(10, function() {
+			
+			var bestX = 0,
+				bestY = 0,
+				bestScore = 0;
+			
+			_.times(10, function() {
+				//Calculate new position
+				if ((ant.lastX != 0) && (ant.lastY != 0)) {
 					function validMovement() {
 						diffX = _.random(0, 1) * ant.lastX;
 						diffY = _.random(0, 1) * ant.lastY;
 						if (diffX + diffY == 0) validMovement();
 					}
 					validMovement();
-					
-					var foodScore = getTrailStrength(0, ant.x + diffX, ant.y + diffY);
-					if (foodScore > bestScore) {
-						bestX = diffX;
-						bestY = diffY;
-						bestScore = foodScore;
+				} else {
+					if (Math.abs(ant.lastX) == 1) {
+						diffX = ant.lastX;
+						diffY = _.random(-1, 1);
+					} else {
+						diffX = _.random(-1, 1);
+						diffY = ant.lastY;
 					}
-					
-				});
-				
-				if (bestX == 0 && bestY == 0) {
-					diffX = _.random(0, 1) * ant.lastX;
-					diffY = _.random(0, 1) * ant.lastY;
-				} else {
-					diffX = bestX;
-					diffY = bestY;
 				}
 				
-				console.log("bestscore: " + bestScore);
-				console.log("bestX: " + diffX);
-				console.log("bestY: " + diffY);
-				
-				
-				
-				
-				
-				
-			} else {
-				if (Math.abs(ant.lastX) == 1) {
-					diffX = ant.lastX;
-					diffY = _.random(-1, 1);
-				} else {
-					diffX = _.random(-1, 1);
-					diffY = ant.lastY;
+				var foodScore = getTrailStrength(0, ant.x + diffX, ant.y + diffY);
+				if (foodScore > bestScore) {
+					bestScore = foodScore;
+					bestX = diffX;
+					bestY = diffY;
 				}
+			});
+			
+			console.log("bestscore: " + bestScore);
+			console.log("bestX: " + diffX);
+			console.log("bestY: " + diffY);
+			
+			if (!(bestX == 0 && bestY == 0)) {
+				diffX = bestX;
+				diffY = bestY;
 			}
 			
 			ant.lastX = diffX;
 			ant.lastY = diffY;
 			ant.x += diffX;
 			ant.y += diffY;
-			
-			//var newX = ant.x + diffX;
-			//var newY = ant.y + diffY;
-			
-			/*if (_.inRange(newX, width) && _.inRange(newY, height)) {
-			
-				var pheromonesMap = [];
-
-				_.times(3, function (x) {
-					pheromonesMap[x] = [];
-					
-					_.times(3, function (y) {
-						pheromonesMap[x][y] = getTrailStrength(0, newX, newY);
-						
-						
-						
-					})
-				})*/
-			
-					/*var weakTrail = getTrailStrength(2, newX, newY);
-					var foodTrail = getTrailStrength(0, newX, newY);
-					
-					var chance = _.random(true);
-					console.log("c: " + chance);
-					console.log("w: " + weakTrail);
-					console.log("s: " + foodTrail);
-					
-					if (!ant.foodFound) {
-						if (weakTrail) {
-							//Bounce
-							ant.lastX = -diffX;
-							ant.lastY = -diffY;
-							return;
-						}
-					}*/
-					
-					/*if (!ant.foodFound) {
-						if (chance < foodTrail) {
-							ant.x = newX; //Move X
-							ant.y = newY; //Move Y
-							return;
-						}
-						if (chance < weakTrail) {
-							//console.log("xt");
-							//console.log(ant.foodFound);
-							return; //Return if ant is in explored territory
-						}
-					} else {
-						if (chance < foodTrail) {
-							ant.x = newX; //Move X
-							ant.y = newY; //Move Y
-							return;
-						}
-						if (chance > weakTrail) {
-							//console.log("xt");
-							//console.log(ant.foodFound);
-							return; //Return if ant is in explored territory
-						}
-					}*/
-				
-				
-			/*	ant.x = newX; //Move X
-				ant.y = newY; //Move Y
-				ant.lastX = diffX;
-				ant.lastY = diffY;
-			} else {
-				//Bounce
-				ant.lastX = -diffX;
-				ant.lastY = -diffY;
-			}*/
 			
 			setPixelChannel(mainMap, ant.x, ant.y, 0, 0); //Paint ant R
 			setPixelChannel(mainMap, ant.x, ant.y, 1, 0); //Paint ant G
@@ -302,6 +222,11 @@
 				}
 				if ((insideRange(food.x, ant.x)) && (insideRange(food.y, ant.y)) && (ant.foodFound == false)) {
 					ant.foodFound = true;
+					ant.lastX = -ant.lastX;
+					ant.lastY = -ant.lastY;
+					ant.x += ant.lastX;
+					ant.y += ant.lastY;
+					
 					console.log(food);
 				}
 			});
@@ -309,7 +234,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 25);
+		}, 50);
 	}
 	
 	init();
