@@ -1,6 +1,6 @@
 //TODO: Enable enclosure on production
 /*(function () {*/
-	var startingAnts = 100,
+	var startingAnts = 1,
 		//maxAnts = 5000, //Not used temporarily
 		width = 300,
 		height = 300,
@@ -45,7 +45,7 @@
 		});
 		
 		//Create starting food locations
-		_.times(_.random(5, 10), function(i) {
+		_.times(_.random(5, 100), function(i) {
 			var xCenter = _.random(0, width),
 				yCenter = _.random(0, height);
 				
@@ -61,9 +61,7 @@
 	}
 
 	processWorld = function() {
-		//var oldCanvas = currentCanvas;
-		//var currentCanvas = context.getImageData(0, 0, width, height);
-		
+	
 		context.putImageData(mainMap, 0, 0);
 		
 		function getPixelChannel(imgData, x, y, channel) {
@@ -78,18 +76,7 @@
 			
 			imgData.data[((y * imgData.width + x) * 4) + channel] = value;
 			if (alpha) imgData.data[((y * imgData.width + x) * 4) + 3] = alpha;
-			
 		}
-		
-		/*function getPixelXYEx(imgData, x, y) {
-			function getPixelEx(imgData, index) {
-				var i = index * 4;
-				
-				return [imgData.data[i + 0], imgData.data[i + 1], imgData.data[i + 2], imgData.data[i + 3]];
-			}
-		
-			return getPixelEx(imgData, y*imgData.width+x);
-		}*/
 		
 		function paintTrail(x, y) {
 			var index = ((y * width + x) * 4);
@@ -148,7 +135,6 @@
 			}
 			
 			//Calculate new position
-			
 			if ((ant.lastX != 0) && (ant.lastY != 0)) {
 				function validMovement() {
 					diffX = _.random(0, 1) * ant.lastX;
@@ -207,6 +193,9 @@
 				ant.y = newY; //Move Y
 				ant.lastX = diffX;
 				ant.lastY = diffY;
+			} else {
+				ant.lastX = -diffX;
+				ant.lastY = -diffY;
 			}
 			
 			setPixelChannel(mainMap, ant.x, ant.y, 0, 0); //Paint ant R
