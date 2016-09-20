@@ -16,14 +16,15 @@
 		mainMap,
 		canvas,
 		ants = [],
+		DEBUG_DRAW = { locations: [] },
 		food = { locations: [], color: [0, 255, 0] },
 		nest = { x: _.random(10, width - 10), y: _.random(10, height - 10) },
-		trail = { count: 0, trigger: 1, wash: 1, color: [255, 0, 0, 255] }, //Every "trigger" times, the pheromones trail will wash by "wash" times
+		trail = { count: 0, trigger: 10, wash: 1, color: [255, 0, 0, 255] }, //Every "trigger" times, the pheromones trail will wash by "wash" times
 		defaultAnt = {
 			x: 10,
 			y: 10,
 			lastX: 0,
-			lastY: 0,
+			lastY: 1,
 			life: 255,
 			inDanger: true, //True for an over aroused ant
 			foodFound: false //True for an ant that has found food and is returning
@@ -33,6 +34,31 @@
 		canvas = document.getElementById('world');
 		canvas.width = width;
 		canvas.height = height;
+		
+		canvas.addEventListener('click', function(el) {
+			console.log("click");
+			console.log(el);
+			
+			_.times(30, function(i) {
+				function getCursorPosition(canvas, event) {
+					var rect = canvas.getBoundingClientRect();
+					var x = event.clientX - rect.left;
+					var y = event.clientY - rect.top;
+					
+					return { x: Math.round(x / 2), y: Math.round(y / 2) };
+				}
+				getCursorPosition(canvas, el);
+				var toAdd = getCursorPosition(canvas, el);
+				toAdd.x += i;
+				toAdd.y += i;
+				DEBUG_DRAW.locations.push(toAdd);
+			});
+			
+			console.log(DEBUG_DRAW);
+			
+			
+		}, false); //DEBUG MOUSE DRAWING
+		
 		context = canvas.getContext('2d');
 		mainMap = context.createImageData(width, height);
 		
@@ -45,7 +71,7 @@
 		});
 		
 		//Create starting food locations
-		_.times(_.random(5, 100), function(i) {
+		_.times(_.random(5, 10), function(i) {
 			var xCenter = _.random(0, width),
 				yCenter = _.random(0, height);
 				
@@ -116,6 +142,11 @@
 			setPixelChannel(mainMap, el.x, el.y, 1, 255, 255); //Paint ant G
 		});
 		
+		//DRAW DEBUG LOCATIONS
+		_.each(DEBUG_DRAW.locations, function(el) {
+			setPixelChannel(mainMap, el.x, el.y, 0, 255, 255); //Paint ant G
+		});
+		
 		//Draw nest locations
 		_.times(5, function(ix) {
 			_.times(5, function(iy) {
@@ -136,12 +167,45 @@
 			
 			//Calculate new position
 			if ((ant.lastX != 0) && (ant.lastY != 0)) {
-				function validMovement() {
+				var bestX = 0,
+					bestY = 0,
+					bestScore = 0;
+					
+				
+				_.times(10, function() {
+					function validMovement() {
+						diffX = _.random(0, 1) * ant.lastX;
+						diffY = _.random(0, 1) * ant.lastY;
+						if (diffX + diffY == 0) validMovement();
+					}
+					validMovement();
+					
+					var foodScore = getTrailStrength(0, ant.x + diffX, ant.y + diffY);
+					if (foodScore > bestScore) {
+						bestX = diffX;
+						bestY = diffY;
+						bestScore = foodScore;
+					}
+					
+				});
+				
+				if (bestX == 0 && bestY == 0) {
 					diffX = _.random(0, 1) * ant.lastX;
 					diffY = _.random(0, 1) * ant.lastY;
-					if (diffX + diffY == 0) validMovement();
+				} else {
+					diffX = bestX;
+					diffY = bestY;
 				}
-				validMovement();
+				
+				console.log("bestscore: " + bestScore);
+				console.log("bestX: " + diffX);
+				console.log("bestY: " + diffY);
+				
+				
+				
+				
+				
+				
 			} else {
 				if (Math.abs(ant.lastX) == 1) {
 					diffX = ant.lastX;
@@ -152,19 +216,47 @@
 				}
 			}
 			
-			var newX = ant.x + diffX;
-			var newY = ant.y + diffY;
+			ant.lastX = diffX;
+			ant.lastY = diffY;
+			ant.x += diffX;
+			ant.y += diffY;
 			
-			if (_.inRange(newX, width) && _.inRange(newY, height)) {
-					var weakTrail = getTrailStrength(2, newX, newY);
+			//var newX = ant.x + diffX;
+			//var newY = ant.y + diffY;
+			
+			/*if (_.inRange(newX, width) && _.inRange(newY, height)) {
+			
+				var pheromonesMap = [];
+
+				_.times(3, function (x) {
+					pheromonesMap[x] = [];
+					
+					_.times(3, function (y) {
+						pheromonesMap[x][y] = getTrailStrength(0, newX, newY);
+						
+						
+						
+					})
+				})*/
+			
+					/*var weakTrail = getTrailStrength(2, newX, newY);
 					var foodTrail = getTrailStrength(0, newX, newY);
 					
 					var chance = _.random(true);
-					/*console.log("c: " + chance);
-					console.log("w:" + weakTrail);
-					console.log("s: " + foodTrail);*/
+					console.log("c: " + chance);
+					console.log("w: " + weakTrail);
+					console.log("s: " + foodTrail);
 					
 					if (!ant.foodFound) {
+						if (weakTrail) {
+							//Bounce
+							ant.lastX = -diffX;
+							ant.lastY = -diffY;
+							return;
+						}
+					}*/
+					
+					/*if (!ant.foodFound) {
 						if (chance < foodTrail) {
 							ant.x = newX; //Move X
 							ant.y = newY; //Move Y
@@ -186,17 +278,18 @@
 							//console.log(ant.foodFound);
 							return; //Return if ant is in explored territory
 						}
-					}
+					}*/
 				
 				
-				ant.x = newX; //Move X
+			/*	ant.x = newX; //Move X
 				ant.y = newY; //Move Y
 				ant.lastX = diffX;
 				ant.lastY = diffY;
 			} else {
+				//Bounce
 				ant.lastX = -diffX;
 				ant.lastY = -diffY;
-			}
+			}*/
 			
 			setPixelChannel(mainMap, ant.x, ant.y, 0, 0); //Paint ant R
 			setPixelChannel(mainMap, ant.x, ant.y, 1, 0); //Paint ant G
@@ -216,7 +309,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 1);
+		}, 25);
 	}
 	
 	init();
