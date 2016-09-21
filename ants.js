@@ -39,6 +39,25 @@
 			console.log("click");
 			console.log(el);
 			
+			function getPixelChannel(imgData, x, y, channel) {
+				return imgData.data[((y * imgData.width + x) * 4) + channel];
+			}
+			
+			function getCursorPosition(canvas, event) {
+				var rect = canvas.getBoundingClientRect();
+				var x = event.clientX - rect.left;
+				var y = event.clientY - rect.top;
+				
+				return { x: Math.round(x / 2), y: Math.round(y / 2) };
+			}
+			
+			var rgba = [getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 0),
+				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 1),
+				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 2),
+				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 2)];
+			
+			console.log(rgba.join("-"));
+			
 			_.times(30, function(i) {
 				function getCursorPosition(canvas, event) {
 					var rect = canvas.getBoundingClientRect();
@@ -144,16 +163,15 @@
 		
 		//DRAW DEBUG LOCATIONS
 		_.each(DEBUG_DRAW.locations, function(el) {
-			setPixelChannel(mainMap, el.x, el.y, 0, 255, 255);
+			setPixelChannel(mainMap, el.x, el.y, 1, 255, 255);
 		});
 		
-		/*//Draw nest locations
-		_.times(5, function(ix) {
-			_.times(5, function(iy) {
-				setPixelChannel(mainMap, nest.x + ix, nest.y + iy, 0, 255, 255);
-				setPixelChannel(mainMap, nest.x + ix, nest.y + iy, 2, 255, 255);
+		//Draw nest locations
+		_.times(6, function(ix) {
+			_.times(6, function(iy) {
+				setPixelChannel(mainMap, nest.x + ix - 3, nest.y + iy - 3, 1, 255, 255);
 			});
-		});*/
+		});
 		
 		_.each(ants, function(ant) {
 			var diffX,
@@ -189,7 +207,14 @@
 					}
 				}
 				
-				var foodScore = getTrailStrength(0, ant.x + diffX, ant.y + diffY);
+				var foodScore;
+				
+				if (ant.foodFound) {
+					foodScore = getTrailStrength(2, ant.x + diffX, ant.y + diffY);
+				} else {
+					foodScore = getTrailStrength(0, ant.x + diffX, ant.y + diffY);
+				}
+				
 				if (foodScore > bestScore) {
 					bestScore = foodScore;
 					bestX = diffX;
@@ -197,9 +222,9 @@
 				}
 			});
 			
-			console.log("bestscore: " + bestScore);
+			/*console.log("bestscore: " + bestScore);
 			console.log("bestX: " + diffX);
-			console.log("bestY: " + diffY);
+			console.log("bestY: " + diffY);*/
 			
 			if (!(bestX == 0 && bestY == 0)) {
 				diffX = bestX;
@@ -211,25 +236,43 @@
 			ant.x += diffX;
 			ant.y += diffY;
 			
-			setPixelChannel(mainMap, ant.x, ant.y, 0, 0); //Paint ant R
+			/*setPixelChannel(mainMap, ant.x, ant.y, 0, 0); //Paint ant R
 			setPixelChannel(mainMap, ant.x, ant.y, 1, 0); //Paint ant G
-			setPixelChannel(mainMap, ant.x, ant.y, 2, 0, 255); //Paint ant B
+			setPixelChannel(mainMap, ant.x, ant.y, 2, 0, 255); //Paint ant B*/
+			
+			function insideRange(a, b, range) {
+				if (Math.abs(a - b) < range) return true;
+				return false;
+			}
+			
+			//Make a 180 degrees  turn
+			function bounceAnt() {
+				ant.lastX = -ant.lastX;
+				ant.lastY = -ant.lastY;
+				ant.x += ant.lastX;
+				ant.y += ant.lastY;
+			}
 			
 			_.each(food.locations, function(food) {
-				function insideRange(a, b) {
-					if (Math.abs(a - b) < 2) return true;
-					return false;
-				}
-				if ((insideRange(food.x, ant.x)) && (insideRange(food.y, ant.y)) && (ant.foodFound == false)) {
+				if ((insideRange(food.x, ant.x, 2)) && (insideRange(food.y, ant.y, 2)) && (ant.foodFound == false)) {
+					console.log("foodFound");
+					
 					ant.foodFound = true;
-					ant.lastX = -ant.lastX;
-					ant.lastY = -ant.lastY;
-					ant.x += ant.lastX;
-					ant.y += ant.lastY;
+					bounceAnt();
 					
 					console.log(food);
 				}
 			});
+			
+			//Check if ant is carrying food and is near the base
+			if (ant.foodFound) {
+				if (insideRange(nest.x, ant.x, 6) && insideRange(nest.y, ant.y, 6)) {
+					console.log("nest");
+					ant.foodFound = false; //Drop food
+					bounceAnt();
+					
+				}
+			}
 		});
 		
 		setTimeout(function() {
