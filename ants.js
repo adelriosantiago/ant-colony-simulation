@@ -19,6 +19,7 @@
 		DEBUG_DRAW = { locations: [] },
 		food = { locations: [], color: [0, 255, 0] },
 		nest = { x: _.random(10, width - 10), y: _.random(10, height - 10) },
+		foodStored = 0,
 		trail = { count: 0, trigger: 10, wash: 1, color: [255, 0, 0, 255] }, //Every "trigger" times, the pheromones trail will wash by "wash" times
 		defaultAnt = {
 			x: 10,
@@ -259,7 +260,6 @@
 					
 					ant.foodFound = true;
 					bounceAnt();
-					
 					console.log(food);
 				}
 			});
@@ -268,9 +268,11 @@
 			if (ant.foodFound) {
 				if (insideRange(nest.x, ant.x, 6) && insideRange(nest.y, ant.y, 6)) {
 					console.log("nest");
+					
 					ant.foodFound = false; //Drop food
 					bounceAnt();
-					
+					foodStored++;
+					document.getElementsByClassName('foodStored')[0].innerHTML = foodStored;
 				}
 			}
 		});
