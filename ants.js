@@ -91,7 +91,7 @@
 		});
 		
 		//Create starting food locations
-		_.times(_.random(50, 100), function(i) {
+		_.times(_.random(0, 0), function(i) {
 			var xCenter = _.random(0, width),
 				yCenter = _.random(0, height);
 				
@@ -184,7 +184,6 @@
 				setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint walk trail
 			}
 			
-			
 			var bestX = 0,
 				bestY = 0,
 				bestScore = 0;
@@ -223,10 +222,6 @@
 				}
 			});
 			
-			/*console.log("bestscore: " + bestScore);
-			console.log("bestX: " + diffX);
-			console.log("bestY: " + diffY);*/
-			
 			if (!(bestX == 0 && bestY == 0)) {
 				diffX = bestX;
 				diffY = bestY;
@@ -237,6 +232,12 @@
 			ant.x += diffX;
 			ant.y += diffY;
 			
+			//Bounce ant on canvas limits
+			if ((ant.x <= 0) || (ant.x >= (width - 1)) || (ant.y <= 0) || (ant.y >= (height - 1))) {
+				bounceAnt();
+			}
+			
+			//Disabled, painting the black ant erases trails
 			/*setPixelChannel(mainMap, ant.x, ant.y, 0, 0); //Paint ant R
 			setPixelChannel(mainMap, ant.x, ant.y, 1, 0); //Paint ant G
 			setPixelChannel(mainMap, ant.x, ant.y, 2, 0, 255); //Paint ant B*/
@@ -258,7 +259,7 @@
 				if ((insideRange(food.x, ant.x, 2)) && (insideRange(food.y, ant.y, 2)) && (ant.foodFound == false)) {
 					console.log("foodFound");
 					
-					ant.foodFound = true;
+					ant.foodFound = true; //Take food
 					bounceAnt();
 					console.log(food);
 				}
@@ -272,7 +273,7 @@
 					ant.foodFound = false; //Drop food
 					bounceAnt();
 					foodStored++;
-					document.getElementsByClassName('foodStored')[0].innerHTML = foodStored;
+					document.getElementsByClassName('foodStored')[0].innerHTML = foodStored; //Update food counter
 				}
 			}
 		});
