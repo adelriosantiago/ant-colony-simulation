@@ -197,10 +197,17 @@
 				});
 			});
 
-			//TODO: Add -lastX and -lastY to the map
-			//trailMap[2][2] = 10;
+			//Add -lastX and -lastY to the map
+			trailMap[ant.lastX + 1][ant.lastY + 1] = 0;
 			
-			//TODO: Take out currentScore calculation
+			_.map(trailMap, function (el) {
+				return _.map(el, function (ii) {
+					return ii + (_.random(1, true) / 10);
+				});
+			});
+
+			
+			//Take out currentScore calculation
 			_.times(3, function (tx) {
 				return _.times(3, function(ty) {
 					var currentScore = trailMap[tx][ty];
@@ -214,10 +221,10 @@
 				});
 			});
 			
-			//console.log(trailMap);
+			console.log(trailMap);
 			
 			
-			console.log(bestPos);
+			//console.log(bestPos);
 			
 			bestPos = _.sample(bestPos);
 			
@@ -269,7 +276,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 50);
+		}, 500);
 	}
 	
 	init();
