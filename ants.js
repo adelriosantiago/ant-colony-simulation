@@ -193,21 +193,39 @@
 					var blueScore = getTrailStrength(2, ant.x + (tx - 1), ant.y + (ty - 1)); //Get blue trail strength
 					var redScore = getTrailStrength(0, ant.x + (tx - 1), ant.y + (ty - 1)); //Get red trail strength
 					
-					return redScore - blueScore;
+					return (-blueScore + 1) / 10;
 				});
 			});
+			
+			console.log(trailMap);
 
 			//Add -lastX and -lastY to the map
-			trailMap[ant.lastX + 1][ant.lastY + 1] = 0;
+			trailMap[ant.lastX + 1][ant.lastY + 1] = 0.8;
 			
-			_.map(trailMap, function (el) {
+			//Get the best match by probability
+			var nextLocation  = function() {
+				var rX = _.random(2),
+					rY = _.random(2);
+					
+					
+			
+				if (_.random(1, true) < /* TODO: Continue here */) {
+					
+				}
+				console.log(_.sample(_.sample(trailMap)));
+			}
+			
+			getNextLocation();
+			
+			//TODO: Get a random sample of trailmap, generate a random number, if the random number is inside -1 and trailMap value then take the value
+			
+			/*_.map(trailMap, function (el) {
 				return _.map(el, function (ii) {
 					return ii + (_.random(1, true) / 10);
 				});
-			});
-
+			});*/
 			
-			//Take out currentScore calculation
+			/*//Take out currentScore calculation
 			_.times(3, function (tx) {
 				return _.times(3, function(ty) {
 					var currentScore = trailMap[tx][ty];
@@ -219,7 +237,7 @@
 						bestPos = [{ x: (tx - 1), y: (ty - 1) }];
 					}
 				});
-			});
+			});*/
 			
 			console.log(trailMap);
 			
