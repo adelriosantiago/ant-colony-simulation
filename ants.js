@@ -203,19 +203,22 @@
 			trailMap[ant.lastX + 1][ant.lastY + 1] = 0.8;
 			
 			//Get the best match by probability
-			var nextLocation  = function() {
+			var getNextLocation = function () {
 				var rX = _.random(2),
 					rY = _.random(2);
-					
-					
-			
-				if (_.random(1, true) < /* TODO: Continue here */) {
-					
+
+				console.log("it " + rX);
+
+				if (_.random(1, true) < trailMap[rX][rY]) {
+					return {rX: rX, rY: rY};
+				} else {
+					return getNextLocation();
 				}
-				console.log(_.sample(_.sample(trailMap)));
 			}
 			
-			getNextLocation();
+			var nextLocation = getNextLocation();
+			console.log(nextLocation);
+			
 			
 			//TODO: Get a random sample of trailmap, generate a random number, if the random number is inside -1 and trailMap value then take the value
 			
