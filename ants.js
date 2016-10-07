@@ -27,7 +27,6 @@
 			lastX: 0,
 			lastY: 1,
 			life: 255,
-			inDanger: true, //True for an over aroused ant
 			foodFound: false //True for an ant that has found food and is returning
 		};
 	
@@ -182,77 +181,59 @@
 				setPixelChannel(mainMap, ant.x, ant.y, 0, 255, 255, true); //Paint food trail
 			} else {
 				setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint walk trail
+				
+				_.times(3, function(px) {
+					_.times(3, function(py) {
+						setPixelChannel(mainMap, ant.x - ant.lastX + (px - 1), ant.y - ant.lastY + (py - 1), 2, 255, 50, true); //Paint walk trail
+					});
+				});
+				
+				
 			}
 			
 			var bestPos = [],
 				bestScore = -1;
 			
-			//Generate trail map
-			var trailMap = _.times(3, function (tx) {
-				return _.times(3, function(ty) {
-					var blueScore = getTrailStrength(2, ant.x + (tx - 1), ant.y + (ty - 1)); //Get blue trail strength
-					var redScore = getTrailStrength(0, ant.x + (tx - 1), ant.y + (ty - 1)); //Get red trail strength
+			//Generate initial trail map
+			var trailMap = [[0.5, 0.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]];
+			
+			//Blue score
+			trailMap = _.map(trailMap, function(arr, x) {
+				return _.map(arr, function(val, y) {
+					var blueScore = getTrailStrength(2, ant.x + (x - 1), ant.y + (y - 1)); //Get blue trail strength
 					
-					return (-blueScore + 1) / 10;
+					//if (blueScore) return 0;
+					
+					blueScore = Math.abs(blueScore - 1);
+					
+					
+					return blueScore * val;
 				});
 			});
 			
+			trailMap[ant.lastX + 1][ant.lastY + 1] = (trailMap[ant.lastX + 1][ant.lastY + 1] + 1) / 2;
+			
 			console.log(trailMap);
-
-			//Add -lastX and -lastY to the map
-			trailMap[ant.lastX + 1][ant.lastY + 1] = 0.8;
 			
 			//Get the best match by probability
 			var getNextLocation = function () {
-				var rX = _.random(2),
-					rY = _.random(2);
-
-				console.log("it " + rX);
-
-				if (_.random(1, true) < trailMap[rX][rY]) {
-					return {rX: rX, rY: rY};
+				var testX = _.random(2),
+					testY = _.random(2);
+				if (_.random(1, true) < trailMap[testX][testY]) {
+					return {x: testX - 1, y: testY - 1};
 				} else {
 					return getNextLocation();
 				}
 			}
 			
-			var nextLocation = getNextLocation();
-			console.log(nextLocation);
+			var nextPos = getNextLocation();
 			
+			//console.log(nextPos);
 			
-			//TODO: Get a random sample of trailmap, generate a random number, if the random number is inside -1 and trailMap value then take the value
-			
-			/*_.map(trailMap, function (el) {
-				return _.map(el, function (ii) {
-					return ii + (_.random(1, true) / 10);
-				});
-			});*/
-			
-			/*//Take out currentScore calculation
-			_.times(3, function (tx) {
-				return _.times(3, function(ty) {
-					var currentScore = trailMap[tx][ty];
-					
-					if (currentScore == bestScore) {
-						bestPos.push({ x: (tx - 1), y: (ty - 1) });
-					} else if (currentScore > bestScore) {
-						bestScore = currentScore;
-						bestPos = [{ x: (tx - 1), y: (ty - 1) }];
-					}
-				});
-			});*/
-			
-			console.log(trailMap);
-			
-			
-			//console.log(bestPos);
-			
-			bestPos = _.sample(bestPos);
-			
-			ant.lastX = bestPos.x;
-			ant.lastY = bestPos.y;
-			ant.x += bestPos.x;
-			ant.y += bestPos.y;
+			ant.lastX = nextPos.x;
+			ant.lastY = nextPos.y;
+			ant.x += nextPos.x;
+			ant.y += nextPos.y;
 			
 			//Bounce ant on canvas limits
 			if ((ant.x <= 0) || (ant.x >= (width - 1)) || (ant.y <= 0) || (ant.y >= (height - 1))) {
@@ -297,7 +278,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 500);
+		}, 50);
 	}
 	
 	init();
