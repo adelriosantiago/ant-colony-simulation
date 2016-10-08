@@ -211,11 +211,35 @@
 				});
 			});
 			
-			trailMap[ant.lastX + 1][ant.lastY + 1] = (trailMap[ant.lastX + 1][ant.lastY + 1] + 1) / 2;
+			//trailMap[ant.lastX + 1][ant.lastY + 1] = (trailMap[ant.lastX + 1][ant.lastY + 1] + 1) / 2;
 			
 			console.log(trailMap);
 			
-			//Get the best match by probability
+			
+			//Take out currentScore calculation
+			_.times(3, function (tx) {
+				return _.times(3, function(ty) {
+					var currentScore = trailMap[tx][ty];
+					
+					if (currentScore == bestScore) {
+						bestPos.push({ x: (tx - 1), y: (ty - 1) });
+					} else if (currentScore > bestScore) {
+						bestScore = currentScore;
+						bestPos = [{ x: (tx - 1), y: (ty - 1) }];
+					}
+				});
+			});
+			
+			console.log(trailMap);
+			
+			
+			//console.log(bestPos);
+			
+			bestPos = _.sample(bestPos);
+			
+			
+			
+			/*//Get the best match by probability
 			var getNextLocation = function () {
 				var testX = _.random(2),
 					testY = _.random(2);
@@ -225,15 +249,17 @@
 					return getNextLocation();
 				}
 			}
+			var nextPos = getNextLocation();*/
 			
-			var nextPos = getNextLocation();
+			
+			
 			
 			//console.log(nextPos);
 			
-			ant.lastX = nextPos.x;
-			ant.lastY = nextPos.y;
-			ant.x += nextPos.x;
-			ant.y += nextPos.y;
+			ant.lastX = bestPos.x;
+			ant.lastY = bestPos.y;
+			ant.x += bestPos.x;
+			ant.y += bestPos.y;
 			
 			//Bounce ant on canvas limits
 			if ((ant.x <= 0) || (ant.x >= (width - 1)) || (ant.y <= 0) || (ant.y >= (height - 1))) {
