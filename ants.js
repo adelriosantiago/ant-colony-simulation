@@ -36,7 +36,6 @@
 		canvas.height = height;
 		
 		canvas.addEventListener('click', function(el) {
-			console.log("click");
 			console.log(el);
 			
 			function getPixelChannel(imgData, x, y, channel) {
@@ -55,8 +54,6 @@
 				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 1),
 				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 2),
 				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 3)];
-			
-			console.log(rgba.join("-"));
 			
 			_.times(30, function(i) {
 				function getCursorPosition(canvas, event) {
@@ -237,8 +234,6 @@
 			
 			bestPos = _.sample(bestPos);
 			
-			
-			
 			/*//Get the best match by probability
 			var getNextLocation = function () {
 				var testX = _.random(2),
@@ -250,9 +245,6 @@
 				}
 			}
 			var nextPos = getNextLocation();*/
-			
-			
-			
 			
 			//console.log(nextPos);
 			
