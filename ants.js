@@ -20,7 +20,7 @@
 		food = { locations: [], color: [0, 255, 0] },
 		nest = { x: _.random(10, width - 10), y: _.random(10, height - 10) },
 		foodStored = 0,
-		trail = { count: 0, trigger: 10, wash: 1, color: [255, 0, 0, 255] }, //Every "trigger" times, the pheromones trail will wash by "wash" times
+		trail = { count: 0, trigger: 100, wash: 1, color: [255, 0, 0, 255] }, //Every "trigger" times, the pheromones trail will wash by "wash" times
 		defaultAnt = {
 			x: 10,
 			y: 10,
@@ -55,7 +55,7 @@
 			var rgba = [getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 0),
 				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 1),
 				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 2),
-				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 2)];
+				getPixelChannel(mainMap, getCursorPosition(canvas, el).x,  getCursorPosition(canvas, el).y, 3)];
 			
 			console.log(rgba.join("-"));
 			
@@ -91,7 +91,7 @@
 		});
 		
 		//Create starting food locations
-		_.times(_.random(0, 0), function(i) {
+		_.times(_.random(5, 10), function(i) {
 			var xCenter = _.random(0, width),
 				yCenter = _.random(0, height);
 				
@@ -188,13 +188,18 @@
 				bestY = 0,
 				bestScore = 0;
 			
-			_.times(10, function() {
+			_.times(50, function() {
 				//Calculate new position
 				if ((ant.lastX != 0) && (ant.lastY != 0)) {
 					function validMovement() {
 						diffX = _.random(0, 1) * ant.lastX;
 						diffY = _.random(0, 1) * ant.lastY;
-						if (diffX + diffY == 0) validMovement();
+						if (Math.abs(diffX) + Math.abs(diffY) == 0) {
+							//console.log("invalid mov");
+							//console.log(diffX);
+							//console.log(diffY);
+							validMovement();
+						}
 					}
 					validMovement();
 				} else {
@@ -207,13 +212,21 @@
 					}
 				}
 				
-				var foodScore;
-				
+				var trailScores = { blue: getTrailStrength(2, ant.x + diffX, ant.y + diffY), red: getTrailStrength(0, ant.x + diffX, ant.y + diffY) },
+					foodScore;
+					
 				if (ant.foodFound) {
-					foodScore = getTrailStrength(2, ant.x + diffX, ant.y + diffY);
+					foodScore = getTrailStrength(2, ant.x + diffX, ant.y + diffY); //Get blue trail strength
 				} else {
-					foodScore = getTrailStrength(0, ant.x + diffX, ant.y + diffY);
+					foodScore = trailScores.red - trailScores.blue;
+					if (trailScores.blue) {
+						//console.log("on lbue");
+						//console.log(foodScore);
+						bounceAnt();
+					}
 				}
+				
+				//TODO: Avoid hiting blue again
 				
 				if (foodScore > bestScore) {
 					bestScore = foodScore;
@@ -280,7 +293,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 50);
+		}, 5);
 	}
 	
 	init();
