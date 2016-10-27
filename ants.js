@@ -184,83 +184,42 @@
 				setPixelChannel(mainMap, ant.x, ant.y, 2, 255, 255, true); //Paint walk trail
 			}
 			
-			var bestX = 0,
-				bestY = 0,
-				bestScore = 0;
+			var bestPos = [],
+				bestScore = -1;
 			
-			_.times(50, function() {
-				//Calculate new position
-				if ((ant.lastX != 0) && (ant.lastY != 0)) {
-					function validMovement() {
-						diffX = _.random(0, 1) * ant.lastX;
-						diffY = _.random(0, 1) * ant.lastY;
-						if (Math.abs(diffX) + Math.abs(diffY) == 0) {
-							//console.log("invalid mov");
-							//console.log(diffX);
-							//console.log(diffY);
-							validMovement();
-						}
-					}
-					validMovement();
-				} else {
-					if (Math.abs(ant.lastX) == 1) {
-						diffX = ant.lastX;
-						diffY = _.random(-1, 1);
-					} else {
-						diffX = _.random(-1, 1);
-						diffY = ant.lastY;
-					}
-				}
-				
-				var trailScores = { blue: getTrailStrength(2, ant.x + diffX, ant.y + diffY), red: getTrailStrength(0, ant.x + diffX, ant.y + diffY) },
-					foodScore;
+			//Generate trail map
+			var trailMap = _.times(3, function (tx) {
+				return _.times(3, function(ty) {
+					var blueScore = getTrailStrength(2, ant.x + (tx - 1), ant.y + (ty - 1)); //Get blue trail strength
+					var redScore = getTrailStrength(0, ant.x + (tx - 1), ant.y + (ty - 1)); //Get blue trail strength
 					
-				if (ant.foodFound) {
-					foodScore = getTrailStrength(2, ant.x + diffX, ant.y + diffY); //Get blue trail strength
-				} else {
-					foodScore = trailScores.red - trailScores.blue;
-					if (trailScores.blue) {
-						//console.log("on lbue");
-						//console.log(foodScore);
-						bounceAnt();
-					}
-				}
-				
-				//TODO: Avoid hiting blue again
-				
-				if (foodScore > bestScore) {
-					bestScore = foodScore;
-					bestX = diffX;
-					bestY = diffY;
-				}
+					var currentScore = redScore - blueScore;
+					if (currentScore >= bestScore) bestPos.push({ x: (tx - 1), y: (ty - 1) });
+					
+					return redScore - blueScore;
+				});
 			});
 			
-			if (!(bestX == 0 && bestY == 0)) {
-				diffX = bestX;
-				diffY = bestY;
-			}
+			console.log(bestPos);
 			
-			ant.lastX = diffX;
-			ant.lastY = diffY;
-			ant.x += diffX;
-			ant.y += diffY;
+			bestPos = _.sample(bestPos);
+			
+			ant.lastX = bestPos.x;
+			ant.lastY = bestPos.y;
+			ant.x += bestPos.x;
+			ant.y += bestPos.y;
 			
 			//Bounce ant on canvas limits
 			if ((ant.x <= 0) || (ant.x >= (width - 1)) || (ant.y <= 0) || (ant.y >= (height - 1))) {
 				bounceAnt();
 			}
 			
-			//Disabled, painting the black ant erases trails
-			/*setPixelChannel(mainMap, ant.x, ant.y, 0, 0); //Paint ant R
-			setPixelChannel(mainMap, ant.x, ant.y, 1, 0); //Paint ant G
-			setPixelChannel(mainMap, ant.x, ant.y, 2, 0, 255); //Paint ant B*/
-			
 			function insideRange(a, b, range) {
 				if (Math.abs(a - b) < range) return true;
 				return false;
 			}
 			
-			//Make a 180 degrees  turn
+			//Make a 180 degrees turn
 			function bounceAnt() {
 				ant.lastX = -ant.lastX;
 				ant.lastY = -ant.lastY;
@@ -293,7 +252,7 @@
 		
 		setTimeout(function() {
 			processWorld();
-		}, 5);
+		}, 50);
 	}
 	
 	init();
