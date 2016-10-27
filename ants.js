@@ -191,14 +191,31 @@
 			var trailMap = _.times(3, function (tx) {
 				return _.times(3, function(ty) {
 					var blueScore = getTrailStrength(2, ant.x + (tx - 1), ant.y + (ty - 1)); //Get blue trail strength
-					var redScore = getTrailStrength(0, ant.x + (tx - 1), ant.y + (ty - 1)); //Get blue trail strength
-					
-					var currentScore = redScore - blueScore;
-					if (currentScore >= bestScore) bestPos.push({ x: (tx - 1), y: (ty - 1) });
+					var redScore = getTrailStrength(0, ant.x + (tx - 1), ant.y + (ty - 1)); //Get red trail strength
 					
 					return redScore - blueScore;
 				});
 			});
+
+			//TODO: Add -lastX and -lastY to the map
+			//trailMap[2][2] = 10;
+			
+			//TODO: Take out currentScore calculation
+			_.times(3, function (tx) {
+				return _.times(3, function(ty) {
+					var currentScore = trailMap[tx][ty];
+					
+					if (currentScore == bestScore) {
+						bestPos.push({ x: (tx - 1), y: (ty - 1) });
+					} else if (currentScore > bestScore) {
+						bestScore = currentScore;
+						bestPos = [{ x: (tx - 1), y: (ty - 1) }];
+					}
+				});
+			});
+			
+			//console.log(trailMap);
+			
 			
 			console.log(bestPos);
 			
